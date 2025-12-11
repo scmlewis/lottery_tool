@@ -1,0 +1,1934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lucky Draw Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f1419 0%, #1a202c 100%);
+            min-height: 100vh;
+            padding: 20px;
+            background-attachment: fixed;
+            color: #e0e6ed;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.8em;
+            color: #ffffff;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1em;
+            color: #a0aec0;
+        }
+
+        /* Mode Tabs */
+        .mode-tabs {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .mode-tab {
+            padding: 12px 32px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #a0aec0;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.95em;
+            transition: all 0.3s;
+        }
+
+        .mode-tab:hover {
+            border-color: #17a2b8;
+            color: #17a2b8;
+            background: rgba(23, 162, 184, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .mode-tab.active {
+            background: #17a2b8;
+            color: white;
+            border-color: #17a2b8;
+            box-shadow: 0 8px 20px rgba(23, 162, 184, 0.4);
+        }
+
+        /* Main Content Layout */
+        .main-content {
+            display: grid;
+            /* Give more space to the right panel (list management) while keeping the wheel visible */
+            grid-template-columns: 0.7fr 1.3fr;
+            gap: 32px;
+            margin-bottom: 40px;
+        }
+
+        /* Override layout for Group mode: make left panel smaller and wheel more compact */
+        #group-mode .main-content {
+            grid-template-columns: 0.48fr 1.52fr;
+            gap: 28px;
+        }
+
+        /* Make group wheel container smaller to avoid large empty space */
+        #group-mode .wheel-container {
+            width: min(260px, 34vw);
+            aspect-ratio: 1 / 1;
+            margin-bottom: 18px;
+        }
+
+        /* Move pick button a bit up in group mode for tighter layout */
+        #group-mode .spin-button {
+            margin-top: 8px;
+            padding: 12px 20px;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .panel:hover {
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .panel h2 {
+            color: #ffffff;
+            margin-bottom: 25px;
+            font-size: 1.4em;
+            font-weight: 700;
+        }
+
+        /* Wheel Section */
+        .wheel-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .wheel-container {
+            position: relative;
+            /* responsive square: scale up to 420px but no larger than ~48vw */
+            width: min(420px, 48vw);
+            aspect-ratio: 1 / 1;
+            margin-bottom: 30px;
+            filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.15));
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            background: transparent; /* keep canvas background transparent so it blends with panel */
+            border-radius: 50%; /* visually round the canvas to remove square corners */
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-top: 18px solid #e74c3c;
+            z-index: 10;
+            filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.2));
+        }
+
+        .spin-button {
+            width: 100%;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 8px 20px rgba(23, 162, 184, 0.4);
+            margin-bottom: 20px;
+        }
+
+        .spin-button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(23, 162, 184, 0.5);
+            background: linear-gradient(135deg, #1bb8d1 0%, #17a2b8 100%);
+        }
+
+        .spin-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .winner-display {
+            width: 100%;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            text-align: center;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .winner-display.active {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(39, 174, 96, 0.5);
+            border-color: #27ae60;
+        }
+
+        .winner-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .winner-name {
+            font-size: 1.8em;
+            font-weight: 700;
+        }
+
+        /* Right Panel - List Management */
+        .list-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #e0e6ed;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            font-size: 0.95em;
+            font-family: inherit;
+            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.03);
+            color: #e0e6ed;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            font-size: 0.95em;
+            font-family: inherit;
+            transition: all 0.3s;
+            background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+            color: #e0e6ed;
+            padding-right: 44px; /* room for custom arrow */
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            cursor: pointer;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'><path fill='%2317a2b8' d='M7 10l5 5 5-5z'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 14px 14px;
+        }
+
+        /* Remove IE/Edge native arrow */
+        select::-ms-expand {
+            display: none;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #17a2b8;
+            box-shadow: 0 0 0 3px rgba(23, 162, 184, 0.18);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        /* Style dropdown options (may be limited by OS) */
+        select option {
+            background-color: #23262a;
+            color: #e0e6ed;
+            padding: 6px 8px;
+        }
+
+        select option:checked,
+        select option:hover {
+            background-color: rgba(23,162,184,0.12);
+            color: #e0e6ed;
+        }
+
+        input[type="text"]::placeholder,
+        textarea::placeholder,
+        select::placeholder {
+            color: #4a5568;
+        }
+
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2317a2b8' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            padding-right: 40px;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            cursor: pointer;
+        }
+
+        select::-ms-expand {
+            display: none;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #17a2b8;
+            color: white;
+            box-shadow: 0 4px 12px rgba(23, 162, 184, 0.25);
+        }
+
+        .btn-primary:hover {
+            background: #138496;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(23, 162, 184, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e0e6ed;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(231, 76, 60, 0.4);
+        }
+
+        /* Lists Display */
+        .lists-container {
+            margin-top: 25px;
+            flex: 1;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+
+        .list-group {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            border-left: 4px solid #17a2b8;
+            border: 1px solid rgba(23, 162, 184, 0.2);
+            border-left: 4px solid #17a2b8;
+        }
+
+        .list-group-title {
+            font-weight: 700;
+            color: #e0e6ed;
+            margin-bottom: 12px;
+            font-size: 0.95em;
+        }
+
+        .items-display {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .item-tag {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
+            animation: tagFadeIn 0.3s ease-out;
+        }
+
+        @keyframes tagFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .item-tag button {
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            color: white;
+            padding: 0 2px;
+            cursor: pointer;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            transition: all 0.2s;
+        }
+
+        .item-tag button:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Mode Content */
+        .mode-content {
+            display: none;
+        }
+
+        .mode-content.active {
+            display: block;
+        }
+
+        /* Pills for quick list selection */
+        .list-pills {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .pill-button {
+            padding: 8px 14px;
+            background: rgba(255,255,255,0.03);
+            color: #e0e6ed;
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 999px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.18s;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+        }
+
+        .pill-button:hover {
+            transform: translateY(-2px);
+            border-color: rgba(23,162,184,0.6);
+            background: rgba(23,162,184,0.06);
+        }
+
+        .pill-button.active {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            color: white;
+            border-color: #17a2b8;
+            box-shadow: 0 10px 30px rgba(23,162,184,0.35);
+        }
+
+        /* Number Picker */
+        .number-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .number-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .number-input-group input {
+            flex: 1;
+        }
+
+        .number-input-group button {
+            flex: 1;
+        }
+
+        .number-display {
+            font-size: 4.5em;
+            font-weight: 700;
+            color: #17a2b8;
+            margin: 40px 0;
+            will-change: transform;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Number animation: jump/rotate effect when a number is selected */
+        @keyframes numberJump {
+            0% { transform: translateY(0) rotate(0deg) scale(1); }
+            35% { transform: translateY(-22px) rotate(-8deg) scale(1.08); }
+            65% { transform: translateY(8px) rotate(6deg) scale(0.98); }
+            100% { transform: translateY(0) rotate(0deg) scale(1); }
+        }
+
+        /* Individual number item animation */
+        @keyframes numberItemJump {
+            0% { transform: translateY(0) rotate(0deg) scale(1); }
+            35% { transform: translateY(-15px) rotate(-8deg) scale(1.08); }
+            65% { transform: translateY(5px) rotate(6deg) scale(0.98); }
+            100% { transform: translateY(0) rotate(0deg) scale(1); }
+        }
+
+
+        /* Subtle rolling flicker during randomization */
+        @keyframes rollFlicker {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; transform: translateY(-4px) scale(1.02); }
+            100% { opacity: 1; }
+        }
+
+        .number-display.rolling {
+            animation: rollFlicker 120ms linear infinite;
+            text-shadow: 0 6px 18px rgba(0,0,0,0.6);
+        }
+
+        .number-display.rolling .number-item {
+            animation: rollFlicker 120ms linear infinite;
+        }
+
+        /* Styling for individual numbers when multiple are drawn */
+        .number-display .number-item {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 50px;
+            min-height: 50px;
+            padding: 8px 12px;
+            background: rgba(23, 162, 184, 0.2);
+            border-radius: 12px;
+            font-size: 1.8em;
+            white-space: nowrap;
+            border: 2px solid rgba(23, 162, 184, 0.5);
+            transition: box-shadow 0.3s;
+        }
+
+        /* Animate individual number items with staggered timing */
+        .number-display.animate .number-item {
+            animation: numberItemJump 700ms cubic-bezier(.2,.9,.3,1) both;
+            box-shadow: 0 8px 20px rgba(23, 162, 184, 0.4);
+        }
+
+        /* Staggered animation delays for each number */
+        .number-display.animate .number-item:nth-child(1) {
+            animation-delay: 0ms;
+        }
+
+        .number-display.animate .number-item:nth-child(2) {
+            animation-delay: 100ms;
+        }
+
+        .number-display.animate .number-item:nth-child(3) {
+            animation-delay: 200ms;
+        }
+
+        .number-display.animate .number-item:nth-child(4) {
+            animation-delay: 300ms;
+        }
+
+        .number-display.animate .number-item:nth-child(5) {
+            animation-delay: 400ms;
+        }
+
+        .number-display.animate .number-item:nth-child(n+6) {
+            animation-delay: 500ms;
+        }
+
+        .number-history {
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .history-item {
+            background: rgba(23, 162, 184, 0.15);
+            color: #17a2b8;
+            padding: 8px 14px;
+            border-radius: 18px;
+            font-weight: 600;
+            font-size: 0.9em;
+            border: 1px solid rgba(23, 162, 184, 0.4);
+            transition: all 0.2s;
+        }
+
+        .history-item:hover {
+            background: rgba(23, 162, 184, 0.25);
+            border-color: rgba(23, 162, 184, 0.6);
+        }
+
+        /* Wheel history */
+        .wheel-history {
+            width: 100%;
+            margin-top: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .wheel-history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .wheel-history-list {
+            width: 100%;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 12px;
+            padding: 12px;
+            max-height: 220px;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .wheel-history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.03);
+            color: #e0e6ed;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .wheel-history-item .time { color: #a0aec0; font-size: 0.85em; font-weight:500; }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2.2em;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .mode-tabs {
+                gap: 10px;
+            }
+
+            .mode-tab {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+
+            .panel {
+                padding: 25px;
+            }
+
+            .wheel-container {
+                width: 240px;
+                height: 240px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎲 Lucky Draw Tool</h1>
+            <p class="subtitle">Let luck decide your next step</p>
+        </header>
+
+        <!-- Mode Tabs -->
+        <div class="mode-tabs">
+            <button class="mode-tab active" data-mode="wheel">🎡 Wheel</button>
+            <button class="mode-tab" data-mode="number"># Number</button>
+            <button class="mode-tab" data-mode="group">👥 Group</button>
+        </div>
+
+        <!-- Wheel Mode -->
+        <div id="wheel-mode" class="mode-content active">
+            <div class="main-content">
+                <!-- Left Panel - Wheel -->
+                <div class="panel wheel-section">
+                    <h2 style="color: #17a2b8;">Lucky Wheel</h2>
+                    <div class="wheel-container">
+                        <canvas id="wheel-canvas"></canvas>
+                        <div class="wheel-pointer"></div>
+                    </div>
+                    <button class="spin-button" id="spin-button" onclick="spinWheel()">🎯 Start Draw</button>
+
+                    <div style="width:100%; display:flex; align-items:center; justify-content:center; margin-bottom:16px;">
+                        <label style="display:flex; align-items:center; gap:10px; color:#a0aec0; font-weight:600; cursor:pointer;">
+                            <input type="checkbox" id="remove-after-draw" checked style="width:18px; height:18px; cursor:pointer;">
+                            <span style="font-size:0.95em; color:#a0aec0;">Remove winner after draw</span>
+                        </label>
+                    </div>
+                    <div class="winner-display" id="winner-display">
+                        <div class="winner-label">Start your first draw</div>
+                        <div class="winner-name">-</div>
+                    </div>
+
+                    <!-- Wheel draw history -->
+                    <div class="wheel-history" id="wheel-history-container">
+                        <div class="wheel-history-header">
+                            <div style="font-weight:700; color:#e0e6ed;">Draw History</div>
+                            <div>
+                                <button class="btn-secondary" onclick="clearWheelHistory()" style="padding:6px 12px; font-size:0.85em;">Clear</button>
+                            </div>
+                        </div>
+
+                        <div class="wheel-history-list" id="wheel-history-list">
+                            <!-- History items inserted here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Panel - List Management -->
+                <div class="panel list-section">
+                    <h2 style="color: #17a2b8;">List Management</h2>
+                    
+                    <div class="form-group">
+                        <label for="list-name">List Name</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="list-name" placeholder="e.g., Team Members" style="flex: 1;">
+                            <button class="btn-primary" onclick="createNewList()" style="flex: 0.4; padding: 12px;">Create</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="saved-lists">Select List</label>
+                        <!-- Hidden native select kept for accessibility; pills provide quick selection UI -->
+                        <select id="saved-lists" onchange="loadSelectedList()" style="display:none;">
+                            <option value="">-- Choose a list --</option>
+                        </select>
+
+                        <div id="saved-lists-pills" class="list-pills" aria-hidden="false">
+                            <!-- Pills populated dynamically by updateListSelector() -->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="names-textarea">Edit Items (comma or line-separated)</label>
+                        <textarea id="names-textarea" placeholder="Enter names separated by comma or new line"></textarea>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn-primary" onclick="saveCurrentList()">Save Items</button>
+                        <button class="btn-secondary" onclick="shuffleList()">🔀 Shuffle</button>
+                    </div>
+
+                    <div class="button-group" style="grid-template-columns: 1fr;">
+                        <button class="btn-danger" onclick="deleteCurrentList()">Delete List</button>
+                    </div>
+
+                    <div class="lists-container">
+                        <div class="list-group">
+                            <div class="list-group-title">Current Items (0)</div>
+                            <div class="items-display" id="items-display"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Number Picker Mode -->
+        <div id="number-mode" class="mode-content">
+            <div class="main-content">
+                <!-- Left Panel - Settings -->
+                <div class="panel list-section">
+                    <h2 style="color: #17a2b8;">Number Settings</h2>
+                    <p style="color: #a0aec0; font-size: 0.9em; margin-bottom: 20px;">Set number range and rules</p>
+
+                    <div class="form-group">
+                        <label>Min & Max Value</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div>
+                                <label style="font-size: 0.85em; color: #7f8c8d;">Minimum</label>
+                                <input type="text" id="min-number" value="1" style="margin-top: 5px;">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.85em; color: #7f8c8d;">Maximum</label>
+                                <input type="text" id="max-number" value="100" style="margin-top: 5px;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <span>Times Drawn</span>
+                            <span style="color: #17a2b8; font-weight: 600; font-size: 1.1em;" id="draw-count">1</span>
+                        </label>
+                        <div style="position: relative; margin-top: 8px;">
+                            <input type="range" id="draw-slider" min="1" max="20" value="1" 
+                                style="width: 100%; height: 8px; border-radius: 5px; background: #2c3e50; outline: none; -webkit-appearance: none; appearance: none; cursor: pointer;"
+                                oninput="updateDrawCount(this.value)">
+                            <style>
+                                #draw-slider::-webkit-slider-thumb {
+                                    -webkit-appearance: none;
+                                    appearance: none;
+                                    width: 24px;
+                                    height: 24px;
+                                    border-radius: 50%;
+                                    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+                                    cursor: pointer;
+                                    box-shadow: 0 2px 8px rgba(23, 162, 184, 0.5);
+                                    border: 2px solid #0f1419;
+                                    transition: box-shadow 0.2s;
+                                    margin-top: -8px;
+                                }
+                                #draw-slider::-webkit-slider-thumb:hover {
+                                    box-shadow: 0 4px 12px rgba(23, 162, 184, 0.8);
+                                }
+                                #draw-slider::-moz-range-thumb {
+                                    width: 24px;
+                                    height: 24px;
+                                    border-radius: 50%;
+                                    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+                                    cursor: pointer;
+                                    box-shadow: 0 2px 8px rgba(23, 162, 184, 0.5);
+                                    border: 2px solid #0f1419;
+                                    transition: box-shadow 0.2s;
+                                    margin-top: -8px;
+                                }
+                                #draw-slider::-moz-range-thumb:hover {
+                                    box-shadow: 0 4px 12px rgba(23, 162, 184, 0.8);
+                                }
+                                #draw-slider::-webkit-slider-runnable-track {
+                                    background: linear-gradient(to right, #17a2b8 0%, #17a2b8 var(--value), #2c3e50 var(--value), #2c3e50 100%);
+                                    height: 8px;
+                                    border-radius: 5px;
+                                }
+                                #draw-slider::-moz-range-track {
+                                    background: transparent;
+                                }
+                            </style>
+                            <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.8em; color: #7f8c8d;">
+                                <span>0</span>
+                                <span id="draw-max-label">20</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="display: flex; align-items: center; justify-content: space-between; margin-top: 25px;">
+                        <label style="margin-bottom: 0;">Allow Repeats</label>
+                        <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 0;">
+                            <input type="checkbox" id="allow-repeats" style="margin-right: 8px; width: 20px; height: 20px; cursor: pointer;">
+                            <span style="color: #a0aec0; font-size: 0.9em;">Exclude drawn numbers</span>
+                        </label>
+                    </div>
+
+                    <button class="spin-button" style="width: 100%; margin-top: 30px;" onclick="pickNumber()">▶ Start Draw</button>
+                </div>
+
+                <!-- Right Panel - Display -->
+                <div class="panel" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                    <div style="text-align: center;">
+                        <p style="color: #a0aec0; font-size: 0.95em; margin-bottom: 20px;">Current Number</p>
+                        <div class="number-display" id="number-display" style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 15px; color: white; font-size: 3em; font-weight: 700; margin: 0 auto 40px; min-height: 60px;">
+                            <div id="number-display-content" style="text-align: center;">
+                                <div style="font-size: 2.5em; margin-bottom: 10px;">🎰</div>
+                                <div style="font-size: 0.75em; color: #a0aec0; line-height: 1.4;">
+                                    <div>Set range & quantity</div>
+                                    <div style="margin-top: 4px;">Click start to draw</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="width: 100%; margin-top: 30px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3 style="color: #ffffff; font-size: 1em; font-weight: 700;">Draw Record</h3>
+                            <button class="btn-secondary" style="padding: 6px 12px; font-size: 0.85em;" onclick="clearNumberHistory()">Clear</button>
+                        </div>
+                        <div class="number-history" id="number-history" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Group Selector Mode -->
+        <div id="group-mode" class="mode-content">
+            <div class="main-content" style="grid-template-columns: 1fr 1.2fr; gap: 24px;">
+                <!-- Left Panel - Group Management -->
+                <div class="panel list-section">
+                    <h2 style="color: #17a2b8;">Group Management</h2>
+
+                    <div class="form-group">
+                        <label>Grouping Mode</label>
+                        <div style="display:flex; gap:12px; align-items:center; margin-top:8px; flex-direction: column; align-items: flex-start;">
+                            <label style="display:flex; align-items:center; gap:8px; color:#a0aec0;"><input type="radio" name="group-mode" value="size" checked onchange="computeGroupPreview()"> Each group has N members</label>
+                            <label style="display:flex; align-items:center; gap:8px; color:#a0aec0;"><input type="radio" name="group-mode" value="count" onchange="computeGroupPreview()"> Divide into K groups</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                        <div>
+                            <label>Number</label>
+                            <input type="number" id="group-number" value="3" min="1" style="margin-top:6px; width:100%;" oninput="computeGroupPreview()">
+                        </div>
+                        <div>
+                            <label style="color:#a0aec0; font-size: 0.85em;">Estimated</label>
+                            <div id="group-preview" style="padding:10px; background:rgba(23,162,184,0.1); border-radius:6px; border:1px solid rgba(23,162,184,0.3); margin-top:6px; color:#17a2b8; font-weight: 600;">—</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="display:flex; gap:10px; align-items:center;">
+                        <input type="text" id="group-member-input" placeholder="Enter name" style="flex:1; padding:10px;">
+                        <button class="btn-primary" style="flex:0; padding:10px 14px;" onclick="addSingleMember()">＋</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="group-members">Batch Add</label>
+                        <textarea id="group-members" placeholder="Paste names separated by comma or newline" style="min-height: 80px;"></textarea>
+                        <div style="display:flex; gap:8px; margin-top:10px; flex-wrap: wrap;">
+                            <button class="btn-primary" onclick="addBatchMembers()">Add Batch</button>
+                            <button class="btn-secondary" onclick="shuffleGroup()">🔀 Shuffle</button>
+                            <button class="btn-secondary" onclick="clearGroupMembers()">Clear</button>
+                        </div>
+                    </div>
+
+                    <div class="lists-container" style="margin-bottom: 16px;">
+                        <div class="list-group">
+                            <div class="list-group-title">Members (<span id="group-count">0</span>)</div>
+                            <div class="items-display" id="group-items-display" style="max-height: 150px; overflow-y: auto;"></div>
+                        </div>
+                    </div>
+
+                    <button class="spin-button" style="width: 100%; padding:12px 20px; margin-bottom: 10px;" onclick="startGrouping()">👥 Start Grouping</button>
+                    <button class="btn-secondary" style="width: 100%; padding:10px 20px;" onclick="exportGroupsCSV()">📥 Export CSV</button>
+                </div>
+
+                <!-- Right Panel - Group Results -->
+                <div class="panel" style="display: flex; flex-direction: column;">
+                    <h2 style="color: #17a2b8;">Group Results</h2>
+                    <div id="group-results" style="
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                        gap: 16px;
+                        flex: 1;
+                        overflow-y: auto;
+                        padding-right: 8px;
+                    "></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== Storage Management ====================
+        function getStoredLists() {
+            const stored = localStorage.getItem('wheelLists');
+            return stored ? JSON.parse(stored) : {};
+        }
+
+        function saveLists(lists) {
+            localStorage.setItem('wheelLists', JSON.stringify(lists));
+        }
+
+        function getCurrentItems() {
+            const lists = getStoredLists();
+            return lists[currentListName] || [];
+        }
+
+        function setCurrentItems(items) {
+            const lists = getStoredLists();
+            lists[currentListName] = items;
+            saveLists(lists);
+        }
+
+        // ==================== List Management ====================
+        let currentListName = null;
+        let currentItems = [];
+
+        function createNewList() {
+            const name = document.getElementById('list-name').value.trim();
+            if (!name) {
+                alert('Please enter a list name');
+                return;
+            }
+
+            const lists = getStoredLists();
+            if (lists.hasOwnProperty(name)) {
+                alert('This list already exists');
+                return;
+            }
+
+            lists[name] = [];
+            saveLists(lists);
+            currentListName = name;
+            currentItems = [];
+            updateListSelector();
+            updateItemsDisplay();
+            document.getElementById('names-textarea').value = '';
+            document.getElementById('list-name').value = '';
+            alert('List created successfully');
+        }
+
+        function updateListSelector() {
+            const lists = getStoredLists();
+            const select = document.getElementById('saved-lists');
+            select.innerHTML = '<option value="">-- Choose a list --</option>';
+
+            // Populate native select (hidden) for accessibility
+            for (const name in lists) {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = `${name} (${lists[name].length} items)`;
+                select.appendChild(option);
+            }
+
+            if (currentListName) {
+                select.value = currentListName;
+            }
+
+            // Populate pill buttons for quick selection
+            const pillsContainer = document.getElementById('saved-lists-pills');
+            if (pillsContainer) {
+                pillsContainer.innerHTML = '';
+                for (const name in lists) {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'pill-button';
+                    btn.textContent = `${name} (${lists[name].length})`;
+                    btn.onclick = () => selectListByName(name);
+                    if (currentListName === name) btn.classList.add('active');
+                    pillsContainer.appendChild(btn);
+                }
+
+                // Add an 'All Lists' / clear button if no selection
+                const clearBtn = document.createElement('button');
+                clearBtn.type = 'button';
+                clearBtn.className = 'pill-button';
+                clearBtn.textContent = 'All Lists';
+                clearBtn.onclick = () => {
+                    currentListName = null;
+                    currentItems = [];
+                    document.getElementById('names-textarea').value = '';
+                    updateItemsDisplay();
+                    drawWheel();
+                    updateListSelector();
+                    updateWheelHistory();
+                };
+                pillsContainer.insertBefore(clearBtn, pillsContainer.firstChild);
+            }
+        }
+
+        function selectListByName(name) {
+            const select = document.getElementById('saved-lists');
+            if (select) select.value = name;
+            loadSelectedList();
+            // refresh pills highlighting
+            updateListSelector();
+        }
+
+        function loadSelectedList() {
+            const name = document.getElementById('saved-lists').value;
+            if (!name) {
+                currentListName = null;
+                currentItems = [];
+                document.getElementById('names-textarea').value = '';
+                updateItemsDisplay();
+                drawWheel();
+                updateWheelHistory();
+                return;
+            }
+
+            const lists = getStoredLists();
+            currentListName = name;
+            currentItems = [...lists[name]];
+            document.getElementById('names-textarea').value = currentItems.join('\n');
+            updateItemsDisplay();
+            drawWheel();
+            updateWheelHistory();
+        }
+
+        function saveCurrentList() {
+            if (!currentListName) {
+                alert('Please create or select a list first');
+                return;
+            }
+
+            const textarea = document.getElementById('names-textarea').value;
+            const items = textarea
+                .split(/[,\n]+/)
+                .map(item => item.trim())
+                .filter(item => item.length > 0);
+
+            if (items.length === 0) {
+                alert('Please enter at least one item');
+                return;
+            }
+
+            currentItems = items;
+            setCurrentItems(items);
+            updateListSelector();
+            updateItemsDisplay();
+            drawWheel();
+            alert('List saved successfully');
+        }
+
+        function shuffleList() {
+            if (currentItems.length === 0) {
+                alert('No items to shuffle');
+                return;
+            }
+
+            for (let i = currentItems.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentItems[i], currentItems[j]] = [currentItems[j], currentItems[i]];
+            }
+
+            setCurrentItems(currentItems);
+            document.getElementById('names-textarea').value = currentItems.join('\n');
+            updateItemsDisplay();
+            drawWheel();
+        }
+
+        function deleteCurrentList() {
+            if (!currentListName) {
+                alert('Please select a list first');
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to delete "${currentListName}"?`)) {
+                return;
+            }
+
+            const lists = getStoredLists();
+            delete lists[currentListName];
+            saveLists(lists);
+            currentListName = null;
+            currentItems = [];
+            document.getElementById('names-textarea').value = '';
+            document.getElementById('list-name').value = '';
+            updateListSelector();
+            updateItemsDisplay();
+            drawWheel();
+        }
+
+        function removeItem(index) {
+            currentItems.splice(index, 1);
+            setCurrentItems(currentItems);
+            document.getElementById('names-textarea').value = currentItems.join('\n');
+            updateItemsDisplay();
+            drawWheel();
+        }
+
+        function updateItemsDisplay() {
+            const display = document.getElementById('items-display');
+            const count = currentItems.length;
+            document.querySelector('.list-group-title').textContent = `Current Items (${count})`;
+            display.innerHTML = '';
+
+            currentItems.forEach((item, index) => {
+                const tag = document.createElement('div');
+                tag.className = 'item-tag';
+                tag.innerHTML = `
+                    <span>${item}</span>
+                    <button onclick="removeItem(${index})">×</button>
+                `;
+                display.appendChild(tag);
+            });
+        }
+
+        // ==================== Wheel Drawing ====================
+        const canvas = document.getElementById('wheel-canvas');
+        const ctx = canvas.getContext('2d');
+        const canvasSize = 320;
+        canvas.width = canvas.height = canvasSize;
+
+        const colors = [
+            '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8',
+            '#F7DC6F', '#BB8FCE', '#85C1E2', '#F8B739', '#52C0A1'
+        ];
+
+        let wheelRotation = 0;
+        let isSpinning = false;
+        let animationFrameId = null;
+
+        function drawWheel(rotation = 0) {
+            const radius = canvasSize / 2 - 15;
+            const centerX = canvasSize / 2;
+            const centerY = canvasSize / 2;
+
+            // Clear canvas to keep it transparent (no square background)
+            ctx.clearRect(0, 0, canvasSize, canvasSize);
+
+            if (currentItems.length === 0) {
+                // Draw only the circular placeholder so no square shows
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+                ctx.fillStyle = '#2d3748';
+                ctx.fill();
+                ctx.fillStyle = '#718096';
+                ctx.font = 'bold 20px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('Add items to your list to view', centerX, centerY);
+                return;
+            }
+
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(rotation);
+            ctx.translate(-centerX, -centerY);
+
+            const sliceAngle = (2 * Math.PI) / currentItems.length;
+
+            currentItems.forEach((item, index) => {
+                const startAngle = index * sliceAngle;
+                const endAngle = startAngle + sliceAngle;
+                const midAngle = startAngle + sliceAngle / 2;
+
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                ctx.closePath();
+                ctx.fillStyle = colors[index % colors.length];
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(midAngle);
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 13px Arial';
+                ctx.fillText(item, radius - 35, 0);
+                ctx.restore();
+            });
+
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 28, 0, 2 * Math.PI);
+            ctx.fillStyle = '#fff';
+            ctx.fill();
+            ctx.strokeStyle = '#17a2b8';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        // ==================== Spinning Logic ====================
+        function spinWheel() {
+            if (currentItems.length === 0) {
+                alert('Please create a list with items first');
+                return;
+            }
+
+            if (isSpinning) return;
+
+            isSpinning = true;
+            document.getElementById('spin-button').disabled = true;
+
+            const winnerDisplay = document.getElementById('winner-display');
+            winnerDisplay.classList.remove('active');
+
+            const winnerIndex = Math.floor(Math.random() * currentItems.length);
+            const winner = currentItems[winnerIndex];
+
+            const spinDuration = 4500;
+            const fullSpins = 8;
+            const sliceAngle = (2 * Math.PI) / currentItems.length;
+            const targetAngle = fullSpins * 2 * Math.PI - (winnerIndex * sliceAngle) - (sliceAngle / 2);
+            
+            const startTime = Date.now();
+            const startRotation = wheelRotation;
+
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+
+            function animate() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / spinDuration, 1);
+
+                const easeProgress = 1 - Math.pow(1 - progress, 3);
+                wheelRotation = startRotation + (targetAngle * easeProgress);
+
+                drawWheel(wheelRotation);
+
+                if (progress < 1) {
+                    animationFrameId = requestAnimationFrame(animate);
+                } else {
+                    isSpinning = false;
+                    document.getElementById('spin-button').disabled = false;
+                    
+                    displayWinner(winner);
+                    // Add to wheel history
+                    addWheelHistory(winner);
+
+                    // Respect user preference: remove winner after draw only if checkbox is checked
+                    const removeCheckbox = document.getElementById('remove-after-draw');
+                    const removeAfter = removeCheckbox ? removeCheckbox.checked : true;
+                    if (removeAfter) {
+                        currentItems.splice(winnerIndex, 1);
+                        setCurrentItems(currentItems);
+                        updateItemsDisplay();
+                        document.getElementById('names-textarea').value = currentItems.join('\n');
+                    }
+                    
+                    setTimeout(() => {
+                        drawWheel(wheelRotation);
+                    }, 100);
+                }
+            }
+
+            animationFrameId = requestAnimationFrame(animate);
+        }
+
+        function displayWinner(name) {
+            const display = document.getElementById('winner-display');
+            display.querySelector('.winner-name').textContent = name;
+            display.querySelector('.winner-label').textContent = '🎉 Winner!';
+            display.classList.add('active');
+        }
+
+        // ==================== Wheel History ====================
+        let wheelHistory = JSON.parse(localStorage.getItem('wheelHistory') || '[]');
+
+        function saveWheelHistory() {
+            localStorage.setItem('wheelHistory', JSON.stringify(wheelHistory));
+        }
+
+        function updateWheelHistory() {
+            const listEl = document.getElementById('wheel-history-list');
+            if (!listEl) return;
+            listEl.innerHTML = '';
+
+            // If a list is selected, show only entries for that list (per-list history)
+            if (!currentListName) {
+                const hint = document.createElement('div');
+                hint.style.color = '#a0aec0';
+                hint.style.padding = '8px';
+                hint.textContent = 'Select a list to view its draw history.';
+                listEl.appendChild(hint);
+                return;
+            }
+
+            const filtered = wheelHistory.filter(entry => entry.list === currentListName);
+
+            if (filtered.length === 0) {
+                const hint = document.createElement('div');
+                hint.style.color = '#a0aec0';
+                hint.style.padding = '8px';
+                hint.textContent = 'No history for this list yet.';
+                listEl.appendChild(hint);
+                return;
+            }
+
+            filtered.slice(0, 50).forEach(entry => {
+                const item = document.createElement('div');
+                item.className = 'wheel-history-item';
+                const left = document.createElement('div');
+                left.textContent = entry.name;
+                const right = document.createElement('div');
+                right.className = 'time';
+                const t = new Date(entry.time);
+                right.textContent = t.toLocaleString();
+                item.appendChild(left);
+                item.appendChild(right);
+                listEl.appendChild(item);
+            });
+        }
+
+        function addWheelHistory(name) {
+            const entry = { name: name, time: new Date().toISOString(), list: currentListName || '' };
+            wheelHistory.unshift(entry);
+            // keep history bounded
+            if (wheelHistory.length > 200) wheelHistory.length = 200;
+            saveWheelHistory();
+            updateWheelHistory();
+        }
+
+        function clearWheelHistory() {
+            if (!confirm('Clear wheel draw history?')) return;
+            wheelHistory = [];
+            saveWheelHistory();
+            updateWheelHistory();
+        }
+
+        // ==================== Number Picker ====================
+        let numberHistory = [];
+        let batchHistory = []; // Track batches of drawn numbers
+        let drawnNumbers = new Set();
+
+        function pickNumber() {
+            const min = parseInt(document.getElementById('min-number').value) || 0;
+            const max = parseInt(document.getElementById('max-number').value) || 100;
+            const allowRepeats = document.getElementById('allow-repeats').checked;
+            const timesToDraw = parseInt(document.getElementById('draw-slider').value) || 1;
+            const btn = document.querySelector('#number-mode .spin-button') || document.querySelector('.spin-button');
+
+            if (min >= max) {
+                alert('Minimum must be less than maximum');
+                return;
+            }
+
+            if (timesToDraw <= 0) {
+                alert('Times Drawn must be at least 1');
+                return;
+            }
+
+            const displayEl = document.getElementById('number-display');
+
+            // Disable the button during animation
+            if (btn) btn.disabled = true;
+
+            const range = max - min + 1;
+
+            if (allowRepeats && drawnNumbers.size >= range) {
+                // If we've drawn all numbers, reset
+                drawnNumbers.clear();
+            }
+
+            // Draw multiple numbers based on slider value
+            const drawnThisRound = [];
+            let rollCounter = 0;
+            const rollDuration = 1000; // ms
+            const rollInterval = 60; // ms
+
+            let rollTimer = null;
+            let start = Date.now();
+
+            // Add rolling class to start animation
+            displayEl.classList.add('rolling');
+
+            rollTimer = setInterval(() => {
+                const now = Date.now();
+                if (now - start >= rollDuration) {
+                    clearInterval(rollTimer);
+
+                    // Draw the required number of numbers
+                    for (let i = 0; i < timesToDraw; i++) {
+                        let finalNumber;
+                        if (allowRepeats) {
+                            let availableNumbers = [];
+                            for (let j = min; j <= max; j++) {
+                                if (!drawnNumbers.has(j)) availableNumbers.push(j);
+                            }
+                            if (availableNumbers.length === 0) {
+                                if (i === 0) {
+                                    alert('All numbers have been drawn!');
+                                    displayEl.classList.remove('rolling');
+                                    if (btn) btn.disabled = false;
+                                    return;
+                                }
+                                break;
+                            }
+                            finalNumber = availableNumbers[Math.floor(Math.random() * availableNumbers.length)];
+                            drawnNumbers.add(finalNumber);
+                        } else {
+                            finalNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+                        }
+                        drawnThisRound.push(finalNumber);
+                    }
+
+                    // Display the drawn numbers
+                    displayEl.innerHTML = drawnThisRound.map(num => `<span class="number-item">${num}</span>`).join('');
+                    displayEl.classList.remove('rolling');
+                    // trigger jump animation
+                    displayEl.classList.add('animate');
+
+                    // record history and update UI
+                    drawnThisRound.forEach(num => numberHistory.unshift(num));
+                    batchHistory.unshift(drawnThisRound); // Record batch
+                    updateNumberHistory();
+                    updateDrawProgress();
+
+                    // cleanup animation class after it finishes
+                    setTimeout(() => {
+                        displayEl.classList.remove('animate');
+                        if (btn) btn.disabled = false;
+                    }, 800);
+
+                } else {
+                    // during roll, show random numbers preview
+                    const previewNumbers = [];
+                    for (let i = 0; i < timesToDraw; i++) {
+                        const preview = Math.floor(Math.random() * (max - min + 1)) + min;
+                        previewNumbers.push(preview);
+                    }
+                    displayEl.innerHTML = previewNumbers.map(num => `<span class="number-item">${num}</span>`).join('');
+                }
+            }, rollInterval);
+        }
+
+        function updateNumberHistory() {
+            const historyDiv = document.getElementById('number-history');
+            historyDiv.innerHTML = '';
+            batchHistory.slice(0, 20).forEach((batch, index) => {
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                const batchNumbers = batch.join(', ');
+                item.innerHTML = `<span style="color: #a0aec0; font-size: 0.8em;">#${index + 1}</span> <span style="color: #17a2b8; font-weight: 700;">${batchNumbers}</span>`;
+                item.style.display = 'flex';
+                item.style.gap = '8px';
+                item.style.alignItems = 'center';
+                item.style.padding = '8px 14px';
+                item.style.background = 'rgba(23, 162, 184, 0.15)';
+                item.style.borderRadius = '20px';
+                historyDiv.appendChild(item);
+            });
+        }
+
+        function updateDrawProgress() {
+            const min = parseInt(document.getElementById('min-number').value) || 0;
+            const max = parseInt(document.getElementById('max-number').value) || 100;
+            const range = max - min + 1;
+            const slider = document.getElementById('draw-slider');
+            
+            // Update slider max value based on range, but cap at 20
+            const sliderMax = Math.min(range, 20);
+            slider.max = sliderMax;
+            document.getElementById('draw-max-label').textContent = sliderMax;
+            
+            // Ensure slider value doesn't exceed the new max
+            if (parseInt(slider.value) > sliderMax) {
+                slider.value = sliderMax;
+            }
+            
+            // Display the current slider value (what user wants to draw)
+            document.getElementById('draw-count').textContent = slider.value;
+            
+            // Update slider background gradient
+            const percentage = (parseInt(slider.value) / sliderMax) * 100;
+            slider.style.setProperty('--value', percentage + '%');
+        }
+
+        function updateDrawCount(value) {
+            const count = parseInt(value) || 0;
+            document.getElementById('draw-count').textContent = count;
+            
+            // Update slider background gradient
+            const min = parseInt(document.getElementById('min-number').value) || 0;
+            const max = parseInt(document.getElementById('max-number').value) || 100;
+            const range = max - min + 1;
+            const sliderMax = Math.min(range, 20);
+            const percentage = (count / sliderMax) * 100;
+            document.getElementById('draw-slider').style.setProperty('--value', percentage + '%');
+        }
+
+        function clearNumberHistory() {
+            numberHistory = [];
+            batchHistory = [];
+            drawnNumbers.clear();
+            restorePlaceholder();
+            updateNumberHistory();
+            updateDrawProgress();
+        }
+
+        function restorePlaceholder() {
+            const displayEl = document.getElementById('number-display');
+            displayEl.innerHTML = `
+                <div id="number-display-content" style="text-align: center;">
+                    <div style="font-size: 2.5em; margin-bottom: 10px;">🎰</div>
+                    <div style="font-size: 0.75em; color: #a0aec0; line-height: 1.4;">
+                        <div>Set range & quantity</div>
+                        <div style="margin-top: 4px;">Click start to draw</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ==================== Group Selector ====================
+        let currentGroupName = null;
+        let currentGroupMembers = [];
+
+        function createGroup() {
+            const groupName = document.getElementById('group-name').value.trim();
+            const membersText = document.getElementById('group-members').value;
+
+            if (!groupName) {
+                alert('Please enter a group name');
+                return;
+            }
+
+            const members = membersText
+                .split(/[,\n]+/)
+                .map(item => item.trim())
+                .filter(item => item.length > 0);
+
+            if (members.length === 0) {
+                alert('Please enter at least one member');
+                return;
+            }
+
+            currentGroupName = groupName;
+            currentGroupMembers = members;
+            updateGroupDisplay();
+            document.getElementById('group-name').value = '';
+            document.getElementById('group-members').value = '';
+        }
+
+        // New group utilities (single add, batch add, preview, grouping)
+        function addSingleMember() {
+            const input = document.getElementById('group-member-input');
+            const v = input.value.trim();
+            if (!v) return;
+            currentGroupMembers.push(v);
+            updateGroupDisplay();
+            input.value = '';
+            computeGroupPreview();
+        }
+
+        function addBatchMembers() {
+            const txt = document.getElementById('group-members').value;
+            if (!txt) return;
+            const items = txt.split(/[\n,]+/).map(s => s.trim()).filter(s => s.length > 0);
+            if (items.length === 0) return;
+            currentGroupMembers = currentGroupMembers.concat(items);
+            updateGroupDisplay();
+            document.getElementById('group-members').value = '';
+            computeGroupPreview();
+        }
+
+        function clearGroupMembers() {
+            if (!confirm('Clear all group members?')) return;
+            currentGroupMembers = [];
+            updateGroupDisplay();
+            document.getElementById('group-members').value = '';
+            computeGroupPreview();
+        }
+
+        function updateGroupDisplay() {
+            const display = document.getElementById('group-items-display');
+            const countEl = document.getElementById('group-count');
+            display.innerHTML = '';
+            countEl.textContent = currentGroupMembers.length;
+
+            currentGroupMembers.forEach((member, index) => {
+                const tag = document.createElement('div');
+                tag.className = 'item-tag';
+                tag.innerHTML = `
+                    <span>${member}</span>
+                    <button onclick="removeGroupMember(${index})">×</button>
+                `;
+                display.appendChild(tag);
+            });
+        }
+
+        function removeGroupMember(index) {
+            currentGroupMembers.splice(index, 1);
+            updateGroupDisplay();
+            computeGroupPreview();
+        }
+
+        function computeGroupPreview() {
+            const mode = document.querySelector('input[name="group-mode"]:checked')?.value || 'size';
+            const num = Math.max(1, parseInt(document.getElementById('group-number').value) || 1);
+            const total = currentGroupMembers.length;
+            const previewEl = document.getElementById('group-preview');
+
+            if (total === 0) {
+                previewEl.textContent = 'Estimated: 0 members';
+                return;
+            }
+
+            if (mode === 'size') {
+                const groups = Math.ceil(total / num);
+                previewEl.textContent = `Estimated: ${groups} groups (${num} per group)`;
+            } else {
+                const per = Math.floor(total / num);
+                const extra = total % num;
+                previewEl.textContent = `Estimated: ${num} groups (about ${per}${extra>0?` (+1 for ${extra} groups)`:''} members)`;
+            }
+        }
+
+        function startGrouping() {
+            if (currentGroupMembers.length === 0) {
+                alert('Please add group members first');
+                return;
+            }
+
+            const mode = document.querySelector('input[name="group-mode"]:checked')?.value || 'size';
+            const num = Math.max(1, parseInt(document.getElementById('group-number').value) || 1);
+            const members = [...currentGroupMembers];
+
+            // shuffle members
+            for (let i = members.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [members[i], members[j]] = [members[j], members[i]];
+            }
+
+            let groups = [];
+            if (mode === 'size') {
+                // chunk by size
+                for (let i = 0; i < members.length; i += num) {
+                    groups.push(members.slice(i, i + num));
+                }
+            } else {
+                // divide into num groups, distribute extras
+                groups = Array.from({length: num}, () => []);
+                let idx = 0;
+                members.forEach(m => {
+                    groups[idx].push(m);
+                    idx = (idx + 1) % num;
+                });
+            }
+
+            renderGroupResults(groups);
+        }
+
+        function renderGroupResults(groups) {
+            const container = document.getElementById('group-results');
+            container.innerHTML = '';
+            
+            const colors = ['#f39c12', '#e74c3c', '#9b59b6', '#1abc9c', '#3498db', '#e67e22'];
+            
+            groups.forEach((g, i) => {
+                const card = document.createElement('div');
+                // Adaptive height based on member count: base height + (members * item height)
+                const baseHeight = 60; // header height
+                const itemHeight = 46; // per member item height with gap
+                const cardHeight = baseHeight + (g.length * itemHeight);
+                
+                card.style.cssText = `
+                    background: linear-gradient(135deg, rgba(15, 20, 25, 0.8) 0%, rgba(26, 32, 44, 0.8) 100%);
+                    border: 1px solid rgba(23, 162, 184, 0.3);
+                    border-radius: 12px;
+                    overflow: hidden;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                    display: flex;
+                    flex-direction: column;
+                    height: ${cardHeight}px;
+                `;
+                
+                const header = document.createElement('div');
+                header.style.cssText = `
+                    background: linear-gradient(to right, ${colors[i % colors.length]}, ${colors[(i + 1) % colors.length]});
+                    padding: 14px 16px;
+                    color: white;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                `;
+                header.innerHTML = `
+                    <div>
+                        <div style="font-weight: 700; font-size: 1.1em;">Group ${i+1}</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 0.9em; opacity: 0.9;">${g.length} members</div>
+                    </div>
+                `;
+                
+                const content = document.createElement('div');
+                content.style.cssText = `
+                    padding: 14px 16px;
+                    color: #cbd5e0;
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                `;
+                content.innerHTML = g.map((m, idx) => {
+                    const initial = m.charAt(0).toUpperCase();
+                    const bgColor = colors[idx % colors.length];
+                    return `
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="
+                                width: 36px;
+                                height: 36px;
+                                background: ${bgColor};
+                                color: white;
+                                border-radius: 50%;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                font-weight: 700;
+                                font-size: 0.95em;
+                                flex-shrink: 0;
+                            ">${initial}</div>
+                            <div style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${m}</div>
+                        </div>
+                    `;
+                }).join('');
+                
+                card.appendChild(header);
+                card.appendChild(content);
+                container.appendChild(card);
+            });
+        }
+
+        function exportGroupsCSV() {
+            const container = document.getElementById('group-results');
+            if (!container || container.children.length === 0) {
+                alert('No group results to export');
+                return;
+            }
+            // Build CSV by reading group-results structure
+            let rows = [];
+            Array.from(container.children).forEach(box => {
+                const title = box.querySelector('strong')?.textContent || '';
+                const members = Array.from(box.querySelectorAll('div[style]')).map(d => d.textContent.trim());
+                rows.push([title, ...members]);
+            });
+
+            const csv = rows.map(r => r.map(cell => '"' + (cell || '') + '"').join(',')).join('\n');
+            const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'groups.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function shuffleGroup() {
+            if (currentGroupMembers.length === 0) {
+                alert('Please create a group first');
+                return;
+            }
+
+            for (let i = currentGroupMembers.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentGroupMembers[i], currentGroupMembers[j]] = [currentGroupMembers[j], currentGroupMembers[i]];
+            }
+
+            updateGroupDisplay();
+        }
+
+        
+
+        function pickGroupMember() {
+            if (currentGroupMembers.length === 0) {
+                alert('Please create a group first');
+                return;
+            }
+
+            const randomIndex = Math.floor(Math.random() * currentGroupMembers.length);
+            const selected = currentGroupMembers[randomIndex];
+
+            const display = document.getElementById('group-winner-display');
+            display.querySelector('.winner-name').textContent = selected;
+            display.querySelector('.winner-label').textContent = '✨ Selected Member';
+            display.classList.add('active');
+        }
+
+        // ==================== Mode Switching ====================
+        document.querySelectorAll('.mode-tab').forEach(tab => {
+            tab.addEventListener('click', function () {
+                const mode = this.dataset.mode;
+
+                document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+
+                document.querySelectorAll('.mode-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(mode + '-mode').classList.add('active');
+
+                if (mode === 'wheel') {
+                    setTimeout(() => drawWheel(), 100);
+                }
+            });
+        });
+
+        // ==================== Initialization ====================
+        window.addEventListener('load', function () {
+            updateListSelector();
+            drawWheel();
+        });
+
+        window.addEventListener('resize', function () {
+            if (document.getElementById('wheel-mode').classList.contains('active')) {
+                drawWheel();
+            }
+        });
+
+        // Update slider when min/max values change
+        document.getElementById('min-number').addEventListener('change', updateDrawProgress);
+        document.getElementById('max-number').addEventListener('change', updateDrawProgress);
+        
+        // Initialize slider on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDrawProgress();
+        });
+    </script>
+</body>
+</html>
