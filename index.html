@@ -1205,10 +1205,16 @@
             currentItems.forEach((item, index) => {
                 const tag = document.createElement('div');
                 tag.className = 'item-tag';
-                tag.innerHTML = `
-                    <span>${item}</span>
-                    <button onclick="removeItem(${index})">×</button>
-                `;
+                
+                const span = document.createElement('span');
+                span.textContent = item;
+                
+                const btn = document.createElement('button');
+                btn.textContent = '×';
+                btn.onclick = () => removeItem(index);
+                
+                tag.appendChild(span);
+                tag.appendChild(btn);
                 display.appendChild(tag);
             });
         }
@@ -1685,10 +1691,16 @@
             currentGroupMembers.forEach((member, index) => {
                 const tag = document.createElement('div');
                 tag.className = 'item-tag';
-                tag.innerHTML = `
-                    <span>${member}</span>
-                    <button onclick="removeGroupMember(${index})">×</button>
-                `;
+                
+                const span = document.createElement('span');
+                span.textContent = member;
+                
+                const btn = document.createElement('button');
+                btn.textContent = '×';
+                btn.onclick = () => removeGroupMember(index);
+                
+                tag.appendChild(span);
+                tag.appendChild(btn);
                 display.appendChild(tag);
             });
         }
@@ -1806,28 +1818,37 @@
                     flex-direction: column;
                     gap: 10px;
                 `;
-                content.innerHTML = g.map((m, idx) => {
+                g.forEach((m, idx) => {
                     const initial = m.charAt(0).toUpperCase();
                     const bgColor = colors[idx % colors.length];
-                    return `
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="
-                                width: 36px;
-                                height: 36px;
-                                background: ${bgColor};
-                                color: white;
-                                border-radius: 50%;
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                font-weight: 700;
-                                font-size: 0.95em;
-                                flex-shrink: 0;
-                            ">${initial}</div>
-                            <div style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${m}</div>
-                        </div>
+                    
+                    const row = document.createElement('div');
+                    row.style.cssText = 'display: flex; align-items: center; gap: 10px;';
+                    
+                    const avatar = document.createElement('div');
+                    avatar.style.cssText = `
+                        width: 36px;
+                        height: 36px;
+                        background: ${bgColor};
+                        color: white;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-weight: 700;
+                        font-size: 0.95em;
+                        flex-shrink: 0;
                     `;
-                }).join('');
+                    avatar.textContent = initial;
+                    
+                    const nameDiv = document.createElement('div');
+                    nameDiv.style.cssText = 'flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;';
+                    nameDiv.textContent = m;
+                    
+                    row.appendChild(avatar);
+                    row.appendChild(nameDiv);
+                    content.appendChild(row);
+                });
                 
                 card.appendChild(header);
                 card.appendChild(content);
