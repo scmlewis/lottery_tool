@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lucky Draw Tool</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -11,119 +14,185 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --accent: #6ee7b7;
+            --accent-dim: rgba(110, 231, 183, 0.15);
+            --accent-glow: rgba(110, 231, 183, 0.25);
+            --surface-0: #0c0f14;
+            --surface-1: #13171e;
+            --surface-2: #1a1f28;
+            --surface-3: #222832;
+            --border: rgba(255, 255, 255, 0.06);
+            --border-hover: rgba(255, 255, 255, 0.12);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --danger: #fb7185;
+            --danger-dim: rgba(251, 113, 133, 0.15);
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #0f1419 0%, #1a202c 100%);
-            min-height: 100vh;
-            padding: 20px;
-            background-attachment: fixed;
-            color: #e0e6ed;
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--surface-0);
+            height: 100dvh;
+            padding: 12px 20px;
+            color: var(--text-primary);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            font-variant-numeric: tabular-nums;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse 80% 50% at 20% 0%, rgba(110, 231, 183, 0.04) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 100%, rgba(99, 102, 241, 0.04) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            opacity: 0.35;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
+            width: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
         }
 
         header {
-            text-align: center;
-            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            flex-shrink: 0;
+            min-height: 44px;
+            padding: 2px 0;
         }
 
         h1 {
-            font-size: 2.8em;
-            color: #ffffff;
-            margin-bottom: 10px;
+            font-size: 1.15em;
+            color: var(--text-primary);
             font-weight: 700;
+            white-space: nowrap;
+            flex-shrink: 0;
+            letter-spacing: -0.02em;
         }
 
         .subtitle {
-            font-size: 1em;
-            color: #a0aec0;
+            display: none;
         }
 
         /* Mode Tabs */
         .mode-tabs {
             display: flex;
-            gap: 15px;
+            gap: 4px;
             justify-content: center;
-            margin-bottom: 40px;
+            flex-shrink: 0;
+            background: var(--surface-1);
+            border-radius: 10px;
+            padding: 3px;
+            border: 1px solid var(--border);
         }
 
         .mode-tab {
-            padding: 12px 32px;
-            background: rgba(255, 255, 255, 0.05);
-            color: #a0aec0;
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 6px 16px;
+            background: transparent;
+            color: var(--text-muted);
+            border: none;
             cursor: pointer;
-            border-radius: 30px;
+            border-radius: 7px;
             font-weight: 600;
-            font-size: 0.95em;
-            transition: all 0.3s;
+            font-size: 0.8em;
+            transition: color 0.2s, background 0.2s, box-shadow 0.2s;
+            font-family: inherit;
+            letter-spacing: 0.01em;
         }
 
         .mode-tab:hover {
-            border-color: #17a2b8;
-            color: #17a2b8;
-            background: rgba(23, 162, 184, 0.1);
-            transform: translateY(-2px);
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .mode-tab:active {
+            transform: scale(0.97);
         }
 
         .mode-tab.active {
-            background: #17a2b8;
-            color: white;
-            border-color: #17a2b8;
-            box-shadow: 0 8px 20px rgba(23, 162, 184, 0.4);
+            background: var(--surface-3);
+            color: var(--accent);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.04);
         }
 
         /* Main Content Layout */
         .main-content {
             display: grid;
-            /* Give more space to the right panel (list management) while keeping the wheel visible */
             grid-template-columns: 0.7fr 1.3fr;
-            gap: 32px;
-            margin-bottom: 40px;
+            gap: 16px;
+            flex: 1;
+            overflow: hidden;
+            align-items: stretch;
         }
 
         /* Override layout for Group mode: make left panel smaller and wheel more compact */
         #group-mode .main-content {
             grid-template-columns: 0.48fr 1.52fr;
-            gap: 28px;
+            gap: 14px;
         }
 
         /* Make group wheel container smaller to avoid large empty space */
         #group-mode .wheel-container {
-            width: min(260px, 34vw);
+            width: min(200px, 28vw);
             aspect-ratio: 1 / 1;
-            margin-bottom: 18px;
+            margin-bottom: 10px;
         }
 
         /* Move pick button a bit up in group mode for tighter layout */
         #group-mode .spin-button {
-            margin-top: 8px;
-            padding: 12px 20px;
+            margin-top: 4px;
+            padding: 8px 14px;
         }
 
         .panel {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-            padding: 35px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--surface-1);
+            border-radius: 14px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-height: 0;
+            transition: border-color 0.25s;
         }
 
         .panel:hover {
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--border-hover);
         }
 
         .panel h2 {
-            color: #ffffff;
-            margin-bottom: 25px;
-            font-size: 1.4em;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            font-size: 0.95em;
             font-weight: 700;
+            flex-shrink: 0;
+            letter-spacing: -0.01em;
         }
 
         /* Wheel Section */
@@ -131,153 +200,174 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
         }
 
         .wheel-container {
             position: relative;
-            /* responsive square: scale up to 420px but no larger than ~48vw */
-            width: min(420px, 48vw);
+            width: min(280px, 32vw);
             aspect-ratio: 1 / 1;
-            margin-bottom: 30px;
-            filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.15));
+            margin-bottom: 14px;
+            filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.25));
+            flex-shrink: 0;
         }
 
         canvas {
             width: 100%;
             height: 100%;
             display: block;
-            background: transparent; /* keep canvas background transparent so it blends with panel */
-            border-radius: 50%; /* visually round the canvas to remove square corners */
+            background: transparent;
+            border-radius: 50%;
         }
 
         .wheel-pointer {
             position: absolute;
-            top: -5px;
+            top: -4px;
             left: 50%;
             transform: translateX(-50%);
             width: 0;
             height: 0;
-            border-left: 12px solid transparent;
-            border-right: 12px solid transparent;
-            border-top: 18px solid #e74c3c;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 16px solid var(--accent);
             z-index: 10;
-            filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.2));
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
         }
 
         .spin-button {
             width: 100%;
-            padding: 15px 30px;
-            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
-            color: white;
+            padding: 10px 20px;
+            background: var(--accent);
+            color: var(--surface-0);
             border: none;
-            border-radius: 30px;
-            font-size: 1.1em;
+            border-radius: 8px;
+            font-size: 0.85em;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 8px 20px rgba(23, 162, 184, 0.4);
-            margin-bottom: 20px;
+            transition: transform 0.15s, box-shadow 0.15s, background 0.15s, opacity 0.15s;
+            box-shadow: 0 2px 8px rgba(110, 231, 183, 0.25);
+            margin-bottom: 10px;
+            flex-shrink: 0;
+            font-family: inherit;
+            letter-spacing: 0.02em;
         }
 
         .spin-button:hover:not(:disabled) {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 30px rgba(23, 162, 184, 0.5);
-            background: linear-gradient(135deg, #1bb8d1 0%, #17a2b8 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(110, 231, 183, 0.35);
+            background: #7df0c0;
+        }
+
+        .spin-button:active:not(:disabled) {
+            transform: translateY(0) scale(0.98);
+            box-shadow: 0 1px 4px rgba(110, 231, 183, 0.2);
         }
 
         .spin-button:disabled {
-            opacity: 0.6;
+            opacity: 0.4;
             cursor: not-allowed;
         }
 
         .winner-display {
             width: 100%;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
+            padding: 12px;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
             text-align: center;
-            min-height: 80px;
+            min-height: 52px;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+            flex-shrink: 0;
         }
 
         .winner-display.active {
-            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
-            color: white;
-            transform: scale(1.05);
-            box-shadow: 0 15px 40px rgba(39, 174, 96, 0.5);
-            border-color: #27ae60;
+            background: var(--accent-dim);
+            border-color: rgba(110, 231, 183, 0.3);
+            box-shadow: 0 0 20px rgba(110, 231, 183, 0.1);
         }
 
         .winner-label {
-            font-size: 0.9em;
-            opacity: 0.8;
-            margin-bottom: 8px;
-            font-weight: 600;
+            font-size: 0.75em;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            font-weight: 500;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+
+        .winner-display.active .winner-label {
+            color: var(--accent);
         }
 
         .winner-name {
-            font-size: 1.8em;
+            font-size: 1.3em;
             font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+        }
+
+        .winner-display.active .winner-name {
+            color: var(--accent);
         }
 
         /* Right Panel - List Management */
         .list-section {
             display: flex;
             flex-direction: column;
+            overflow-y: auto;
+            min-height: 0;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 12px;
+            flex-shrink: 0;
         }
 
         label {
             display: block;
-            margin-bottom: 8px;
-            color: #e0e6ed;
-            font-weight: 600;
-            font-size: 0.95em;
+            margin-bottom: 5px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.8em;
+            letter-spacing: 0.02em;
         }
 
         input[type="text"],
         textarea {
             width: 100%;
-            padding: 12px 15px;
-            border: 2px solid rgba(255, 255, 255, 0.06);
-            border-radius: 10px;
-            font-size: 0.95em;
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.85em;
             font-family: inherit;
-            transition: all 0.3s;
-            background: rgba(255, 255, 255, 0.03);
-            color: #e0e6ed;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: var(--surface-2);
+            color: var(--text-primary);
         }
 
         select {
             width: 100%;
-            padding: 12px 15px;
-            border: 2px solid rgba(255, 255, 255, 0.06);
-            border-radius: 10px;
-            font-size: 0.95em;
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.85em;
             font-family: inherit;
-            transition: all 0.3s;
-            background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-            color: #e0e6ed;
-            padding-right: 44px; /* room for custom arrow */
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: var(--surface-2);
+            color: var(--text-primary);
+            padding-right: 32px;
             appearance: none;
             -webkit-appearance: none;
             -moz-appearance: none;
             cursor: pointer;
-            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'><path fill='%2317a2b8' d='M7 10l5 5 5-5z'/></svg>");
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24'><path fill='%2364748b' d='M7 10l5 5 5-5z'/></svg>");
             background-repeat: no-repeat;
-            background-position: right 12px center;
-            background-size: 14px 14px;
+            background-position: right 8px center;
+            background-size: 12px 12px;
         }
 
-        /* Remove IE/Edge native arrow */
         select::-ms-expand {
             display: none;
         }
@@ -286,145 +376,130 @@
         textarea:focus,
         select:focus {
             outline: none;
-            border-color: #17a2b8;
-            box-shadow: 0 0 0 3px rgba(23, 162, 184, 0.18);
-            background: rgba(255, 255, 255, 0.04);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--accent-glow);
         }
 
-        /* Style dropdown options (may be limited by OS) */
         select option {
-            background-color: #23262a;
-            color: #e0e6ed;
+            background-color: var(--surface-2);
+            color: var(--text-primary);
             padding: 6px 8px;
         }
 
         select option:checked,
         select option:hover {
-            background-color: rgba(23,162,184,0.12);
-            color: #e0e6ed;
+            background-color: var(--accent-dim);
+            color: var(--text-primary);
         }
 
         input[type="text"]::placeholder,
         textarea::placeholder,
         select::placeholder {
-            color: #4a5568;
-        }
-
-        select {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2317a2b8' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 15px center;
-            padding-right: 40px;
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            cursor: pointer;
-        }
-
-        select::-ms-expand {
-            display: none;
+            color: var(--text-muted);
         }
 
         .button-group {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-top: 15px;
+            gap: 8px;
+            margin-top: 8px;
+            flex-shrink: 0;
         }
 
         button {
-            padding: 12px 20px;
+            padding: 7px 14px;
             border: none;
-            border-radius: 10px;
-            font-size: 0.95em;
+            border-radius: 6px;
+            font-size: 0.8em;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: transform 0.15s, box-shadow 0.15s, background 0.15s, border-color 0.15s;
+            font-family: inherit;
+            letter-spacing: 0.01em;
+        }
+
+        button:active {
+            transform: scale(0.97);
         }
 
         .btn-primary {
-            background: #17a2b8;
-            color: white;
-            box-shadow: 0 4px 12px rgba(23, 162, 184, 0.25);
+            background: var(--accent);
+            color: var(--surface-0);
         }
 
         .btn-primary:hover {
-            background: #138496;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(23, 162, 184, 0.4);
+            background: #7df0c0;
+            box-shadow: 0 2px 8px rgba(110, 231, 183, 0.3);
         }
 
         .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            color: #e0e6ed;
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: var(--surface-2);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
         }
 
         .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(255, 255, 255, 0.25);
+            background: var(--surface-3);
+            border-color: var(--border-hover);
+            color: var(--text-primary);
         }
 
         .btn-danger {
-            background: #e74c3c;
-            color: white;
-            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+            background: var(--danger-dim);
+            color: var(--danger);
         }
 
         .btn-danger:hover {
-            background: #c0392b;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(231, 76, 60, 0.4);
+            background: rgba(251, 113, 133, 0.25);
         }
 
         /* Lists Display */
         .lists-container {
-            margin-top: 25px;
+            margin-top: 12px;
             flex: 1;
             overflow-y: auto;
-            max-height: 400px;
+            min-height: 0;
         }
 
         .list-group {
-            margin-bottom: 20px;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 12px;
-            border-left: 4px solid #17a2b8;
-            border: 1px solid rgba(23, 162, 184, 0.2);
-            border-left: 4px solid #17a2b8;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: var(--surface-2);
+            border-radius: 8px;
+            border: 1px solid var(--border);
         }
 
         .list-group-title {
-            font-weight: 700;
-            color: #e0e6ed;
-            margin-bottom: 12px;
-            font-size: 0.95em;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            font-size: 0.8em;
+            letter-spacing: 0.01em;
         }
 
         .items-display {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 5px;
         }
 
         .item-tag {
-            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
+            background: var(--accent-dim);
+            color: var(--accent);
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 0.75em;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
-            animation: tagFadeIn 0.3s ease-out;
+            gap: 4px;
+            font-weight: 500;
+            animation: tagFadeIn 0.2s ease-out;
         }
 
         @keyframes tagFadeIn {
             from {
                 opacity: 0;
-                transform: scale(0.9);
+                transform: scale(0.95);
             }
             to {
                 opacity: 1;
@@ -433,23 +508,25 @@
         }
 
         .item-tag button {
-            background: rgba(255, 255, 255, 0.3);
+            background: transparent;
             border: none;
-            color: white;
-            padding: 0 2px;
+            color: var(--accent);
+            padding: 0 1px;
             cursor: pointer;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
+            border-radius: 3px;
+            width: 14px;
+            height: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.8em;
-            transition: all 0.2s;
+            font-size: 0.85em;
+            transition: background 0.15s;
+            opacity: 0.6;
         }
 
         .item-tag button:hover {
-            background: rgba(255, 255, 255, 0.5);
+            background: rgba(110, 231, 183, 0.2);
+            opacity: 1;
         }
 
         /* Mode Content */
@@ -458,129 +535,187 @@
         }
 
         .mode-content.active {
-            display: block;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--surface-3);
+            border-radius: 2px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        /* Collapsible sections */
+        .collapsible-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            padding: 4px 0;
+            user-select: none;
+        }
+
+        .collapsible-header:hover {
+            opacity: 0.8;
+        }
+
+        .collapsible-arrow {
+            transition: transform 0.2s;
+            font-size: 0.7em;
+            color: var(--text-muted);
+        }
+
+        .collapsible-header.collapsed .collapsible-arrow {
+            transform: rotate(-90deg);
+        }
+
+        .collapsible-body {
+            overflow: hidden;
+            transition: max-height 0.25s ease, opacity 0.2s ease;
+            max-height: 500px;
+            opacity: 1;
+        }
+
+        .collapsible-body.collapsed {
+            max-height: 0;
+            opacity: 0;
+        }
+
+        #number-display {
+            position: relative;
+            min-height: 90px;
+        }
+
+        #number-display-content {
+            transition: opacity 0.2s;
+        }
+
+        #number-display.has-numbers #number-display-content {
+            display: none;
+        }
+
+        .number-item {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 48px;
+            min-height: 48px;
+            padding: 6px 10px;
+            background: var(--accent-dim);
+            border-radius: 8px;
+            font-size: 1.6em;
+            white-space: nowrap;
+            border: 1px solid rgba(110, 231, 183, 0.25);
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                margin-bottom: 12px !important;
+            }
+            .mode-tabs {
+                margin-bottom: 12px !important;
+            }
         }
 
         /* Pills for quick list selection */
         .list-pills {
             display: flex;
-            gap: 8px;
+            gap: 4px;
             flex-wrap: wrap;
-            margin-top: 10px;
+            margin-top: 5px;
         }
 
         .pill-button {
-            padding: 8px 14px;
-            background: rgba(255,255,255,0.03);
-            color: #e0e6ed;
-            border: 1px solid rgba(255,255,255,0.04);
-            border-radius: 999px;
+            padding: 4px 10px;
+            background: var(--surface-2);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
             cursor: pointer;
-            font-weight: 600;
-            transition: all 0.18s;
-            box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+            font-weight: 500;
+            transition: transform 0.12s, border-color 0.12s, background 0.12s;
+            font-size: 0.75em;
+            font-family: inherit;
         }
 
         .pill-button:hover {
-            transform: translateY(-2px);
-            border-color: rgba(23,162,184,0.6);
-            background: rgba(23,162,184,0.06);
+            background: var(--surface-3);
+            border-color: var(--border-hover);
+            color: var(--text-primary);
+        }
+
+        .pill-button:active {
+            transform: scale(0.97);
         }
 
         .pill-button.active {
-            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
-            color: white;
-            border-color: #17a2b8;
-            box-shadow: 0 10px 30px rgba(23,162,184,0.35);
-        }
-
-        /* Number Picker */
-        .number-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .number-input-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            width: 100%;
-        }
-
-        .number-input-group input {
-            flex: 1;
-        }
-
-        .number-input-group button {
-            flex: 1;
+            background: var(--accent-dim);
+            color: var(--accent);
+            border-color: rgba(110, 231, 183, 0.3);
         }
 
         .number-display {
-            font-size: 4.5em;
-            font-weight: 700;
-            color: #17a2b8;
-            margin: 40px 0;
+            font-size: 3.5em;
+            font-weight: 800;
+            color: var(--accent);
+            margin: 24px 0;
             will-change: transform;
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            letter-spacing: -0.03em;
         }
 
         /* Number animation: jump/rotate effect when a number is selected */
         @keyframes numberJump {
             0% { transform: translateY(0) rotate(0deg) scale(1); }
-            35% { transform: translateY(-22px) rotate(-8deg) scale(1.08); }
-            65% { transform: translateY(8px) rotate(6deg) scale(0.98); }
+            35% { transform: translateY(-18px) rotate(-6deg) scale(1.06); }
+            65% { transform: translateY(6px) rotate(4deg) scale(0.98); }
             100% { transform: translateY(0) rotate(0deg) scale(1); }
         }
 
         /* Individual number item animation */
         @keyframes numberItemJump {
             0% { transform: translateY(0) rotate(0deg) scale(1); }
-            35% { transform: translateY(-15px) rotate(-8deg) scale(1.08); }
-            65% { transform: translateY(5px) rotate(6deg) scale(0.98); }
+            35% { transform: translateY(-12px) rotate(-6deg) scale(1.06); }
+            65% { transform: translateY(4px) rotate(4deg) scale(0.98); }
             100% { transform: translateY(0) rotate(0deg) scale(1); }
         }
-
 
         /* Subtle rolling flicker during randomization */
         @keyframes rollFlicker {
             0% { opacity: 1; }
-            50% { opacity: 0.7; transform: translateY(-4px) scale(1.02); }
+            50% { opacity: 0.7; transform: translateY(-3px) scale(1.02); }
             100% { opacity: 1; }
         }
 
         .number-display.rolling {
-            animation: rollFlicker 120ms linear infinite;
-            text-shadow: 0 6px 18px rgba(0,0,0,0.6);
+            animation: rollFlicker 100ms linear infinite;
+            text-shadow: 0 4px 12px rgba(0,0,0,0.4);
         }
 
         .number-display.rolling .number-item {
-            animation: rollFlicker 120ms linear infinite;
-        }
-
-        /* Styling for individual numbers when multiple are drawn */
-        .number-display .number-item {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 50px;
-            min-height: 50px;
-            padding: 8px 12px;
-            background: rgba(23, 162, 184, 0.2);
-            border-radius: 12px;
-            font-size: 1.8em;
-            white-space: nowrap;
-            border: 2px solid rgba(23, 162, 184, 0.5);
-            transition: box-shadow 0.3s;
+            animation: rollFlicker 100ms linear infinite;
         }
 
         /* Animate individual number items with staggered timing */
         .number-display.animate .number-item {
-            animation: numberItemJump 700ms cubic-bezier(.2,.9,.3,1) both;
-            box-shadow: 0 8px 20px rgba(23, 162, 184, 0.4);
+            animation: numberItemJump 600ms cubic-bezier(.2,.9,.3,1) both;
+            box-shadow: 0 4px 14px rgba(110, 231, 183, 0.25);
         }
 
         /* Staggered animation delays for each number */
@@ -589,126 +724,320 @@
         }
 
         .number-display.animate .number-item:nth-child(2) {
-            animation-delay: 100ms;
+            animation-delay: 80ms;
         }
 
         .number-display.animate .number-item:nth-child(3) {
-            animation-delay: 200ms;
+            animation-delay: 160ms;
         }
 
         .number-display.animate .number-item:nth-child(4) {
-            animation-delay: 300ms;
+            animation-delay: 240ms;
         }
 
         .number-display.animate .number-item:nth-child(5) {
-            animation-delay: 400ms;
+            animation-delay: 320ms;
         }
 
         .number-display.animate .number-item:nth-child(n+6) {
-            animation-delay: 500ms;
+            animation-delay: 400ms;
         }
 
         .number-history {
             width: 100%;
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 5px;
             justify-content: center;
         }
 
         .history-item {
-            background: rgba(23, 162, 184, 0.15);
-            color: #17a2b8;
-            padding: 8px 14px;
-            border-radius: 18px;
-            font-weight: 600;
-            font-size: 0.9em;
-            border: 1px solid rgba(23, 162, 184, 0.4);
-            transition: all 0.2s;
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            padding: 4px 9px;
+            background: var(--surface-2);
+            border-radius: 5px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.78em;
+            border: 1px solid var(--border);
+            transition: background 0.15s, border-color 0.15s;
         }
 
         .history-item:hover {
-            background: rgba(23, 162, 184, 0.25);
-            border-color: rgba(23, 162, 184, 0.6);
+            background: var(--surface-3);
+            border-color: var(--border-hover);
         }
 
         /* Wheel history */
         .wheel-history {
             width: 100%;
-            margin-top: 18px;
+            margin-top: 10px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 6px;
+            flex-shrink: 0;
         }
 
         .wheel-history-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
         }
 
         .wheel-history-list {
             width: 100%;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.04);
-            border-radius: 12px;
-            padding: 12px;
-            max-height: 220px;
-            overflow: auto;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px;
+            max-height: 120px;
+            overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 4px;
         }
 
         .wheel-history-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 10px;
-            padding: 10px;
-            border-radius: 10px;
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255,255,255,0.03);
-            color: #e0e6ed;
-            font-weight: 600;
-            font-size: 0.95em;
+            gap: 6px;
+            padding: 6px 8px;
+            border-radius: 6px;
+            background: transparent;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.82em;
+            transition: background 0.15s;
         }
 
-        .wheel-history-item .time { color: #a0aec0; font-size: 0.85em; font-weight:500; }
+        .wheel-history-item:hover {
+            background: var(--surface-3);
+        }
+
+        .wheel-history-item .time { color: var(--text-muted); font-size: 0.9em; font-weight: 400; }
+
+        /* Group result card styles */
+        .group-card {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: border-color 0.2s;
+        }
+
+        .group-card:hover {
+            border-color: var(--border-hover);
+        }
+
+        .group-card-header {
+            padding: 8px 10px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .group-card-header-title {
+            font-weight: 700;
+            font-size: 0.85em;
+        }
+        .group-card-header-count {
+            text-align: right;
+            font-size: 0.75em;
+            opacity: 0.85;
+        }
+        .group-card-content {
+            padding: 8px 10px;
+            color: var(--text-secondary);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .group-card-row {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+        .group-card-avatar {
+            width: 28px;
+            height: 28px;
+            color: white;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.75em;
+            flex-shrink: 0;
+        }
+        .group-card-name {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 0.82em;
+            font-weight: 500;
+        }
+
+        /* Slider thumb styles */
+        #draw-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+            border: 2px solid var(--surface-0);
+            transition: box-shadow 0.15s;
+            margin-top: -6px;
+        }
+        #draw-slider::-webkit-slider-thumb:hover {
+            box-shadow: 0 2px 8px rgba(110, 231, 183, 0.4);
+        }
+        #draw-slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+            border: 2px solid var(--surface-0);
+            transition: box-shadow 0.15s;
+            margin-top: -6px;
+        }
+        #draw-slider::-moz-range-thumb:hover {
+            box-shadow: 0 2px 8px rgba(110, 231, 183, 0.4);
+        }
+        #draw-slider::-webkit-slider-runnable-track {
+            background: linear-gradient(to right, var(--accent) 0%, var(--accent) var(--value), var(--surface-3) var(--value), var(--surface-3) 100%);
+            height: 6px;
+            border-radius: 3px;
+        }
+        #draw-slider::-moz-range-track {
+            background: var(--surface-3);
+            height: 6px;
+            border-radius: 3px;
+        }
 
         /* Responsive */
         @media (max-width: 1024px) {
             .main-content {
                 grid-template-columns: 1fr;
+                overflow-y: auto;
             }
 
             h1 {
-                font-size: 2.2em;
+                font-size: 1em;
+            }
+
+            .list-section {
+                overflow-y: visible;
             }
         }
 
         @media (max-width: 768px) {
-            .mode-tabs {
-                gap: 10px;
+            body {
+                padding: 8px 10px;
             }
 
-            .mode-tab {
-                padding: 10px 20px;
-                font-size: 0.9em;
-            }
-
-            .panel {
-                padding: 25px;
-            }
-
-            .wheel-container {
-                width: 240px;
-                height: 240px;
+            header {
+                flex-direction: column;
+                gap: 6px;
+                min-height: auto;
             }
 
             h1 {
-                font-size: 1.8em;
+                font-size: 0.95em;
+            }
+
+            .mode-tabs {
+                gap: 3px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .mode-tab {
+                padding: 5px 12px;
+                font-size: 0.72em;
+            }
+
+            .panel {
+                padding: 14px;
+            }
+
+            .wheel-container {
+                width: min(200px, 55vw);
+            }
+
+            .main-content {
+                gap: 10px;
+            }
+
+            .number-display {
+                font-size: 2.2em !important;
+            }
+
+            .number-item {
+                min-width: 38px;
+                min-height: 38px;
+                font-size: 1.3em;
+            }
+
+            .list-section {
+                overflow-y: visible;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 6px 8px;
+            }
+
+            h1 {
+                font-size: 0.88em;
+            }
+
+            .panel {
+                padding: 10px;
+                border-radius: 10px;
+            }
+
+            .mode-tab {
+                padding: 4px 10px;
+                font-size: 0.68em;
+            }
+
+            .spin-button {
+                padding: 8px 14px;
+                font-size: 0.78em;
+            }
+
+            .wheel-container {
+                width: min(180px, 50vw);
+            }
+
+            .number-display {
+                font-size: 1.8em !important;
+                gap: 8px;
+            }
+
+            .number-item {
+                min-width: 34px;
+                min-height: 34px;
+                font-size: 1.1em;
+                padding: 4px 8px;
+            }
+
+            .button-group {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -716,33 +1045,32 @@
 <body>
     <div class="container">
         <header>
-            <h1>🎲 Lucky Draw Tool</h1>
-            <p class="subtitle">Let luck decide your next step</p>
-        </header>
+            <h1>🎲 Lucky Draw</h1>
 
-        <!-- Mode Tabs -->
-        <div class="mode-tabs">
-            <button class="mode-tab active" data-mode="wheel">🎡 Wheel</button>
-            <button class="mode-tab" data-mode="number"># Number</button>
-            <button class="mode-tab" data-mode="group">👥 Group</button>
-        </div>
+            <!-- Mode Tabs -->
+            <div class="mode-tabs">
+                <button class="mode-tab active" data-mode="wheel">🎡 Wheel</button>
+                <button class="mode-tab" data-mode="number"># Number</button>
+                <button class="mode-tab" data-mode="group">👥 Group</button>
+            </div>
+        </header>
 
         <!-- Wheel Mode -->
         <div id="wheel-mode" class="mode-content active">
             <div class="main-content">
                 <!-- Left Panel - Wheel -->
                 <div class="panel wheel-section">
-                    <h2 style="color: #17a2b8;">Lucky Wheel</h2>
+                    <h2>Lucky Wheel</h2>
                     <div class="wheel-container">
                         <canvas id="wheel-canvas"></canvas>
                         <div class="wheel-pointer"></div>
                     </div>
-                    <button class="spin-button" id="spin-button" onclick="spinWheel()">🎯 Start Draw</button>
+                    <button class="spin-button" id="spin-button" onclick="spinWheel()">Start Draw</button>
 
-                    <div style="width:100%; display:flex; align-items:center; justify-content:center; margin-bottom:16px;">
-                        <label style="display:flex; align-items:center; gap:10px; color:#a0aec0; font-weight:600; cursor:pointer;">
-                            <input type="checkbox" id="remove-after-draw" checked style="width:18px; height:18px; cursor:pointer;">
-                            <span style="font-size:0.95em; color:#a0aec0;">Remove winner after draw</span>
+                    <div style="width:100%; display:flex; align-items:center; justify-content:center; margin-bottom:10px;">
+                        <label style="display:flex; align-items:center; gap:6px; color:var(--text-muted); font-weight:500; cursor:pointer; font-size:0.78em;">
+                            <input type="checkbox" id="remove-after-draw" checked style="width:14px; height:14px; cursor:pointer; accent-color:var(--accent);">
+                            <span>Remove winner after draw</span>
                         </label>
                     </div>
                     <div class="winner-display" id="winner-display">
@@ -752,51 +1080,46 @@
 
                     <!-- Wheel draw history -->
                     <div class="wheel-history" id="wheel-history-container">
-                        <div class="wheel-history-header">
-                            <div style="font-weight:700; color:#e0e6ed;">Draw History</div>
-                            <div>
-                                <button class="btn-secondary" onclick="clearWheelHistory()" style="padding:6px 12px; font-size:0.85em;">Clear</button>
+                        <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                            <div style="font-weight:600; color:var(--text-secondary); font-size:0.8em;">Draw History</div>
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <button class="btn-secondary" onclick="event.stopPropagation(); clearWheelHistory();" style="padding:3px 6px; font-size:0.7em;">Clear</button>
+                                <span class="collapsible-arrow">▼</span>
                             </div>
                         </div>
-
-                        <div class="wheel-history-list" id="wheel-history-list">
-                            <!-- History items inserted here -->
+                        <div class="collapsible-body">
+                            <div class="wheel-history-list" id="wheel-history-list">
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Right Panel - List Management -->
                 <div class="panel list-section">
-                    <h2 style="color: #17a2b8;">List Management</h2>
+                    <h2>List Management</h2>
                     
                     <div class="form-group">
                         <label for="list-name">List Name</label>
-                        <div style="display: flex; gap: 10px;">
+                        <div style="display: flex; gap: 6px;">
                             <input type="text" id="list-name" placeholder="e.g., Team Members" style="flex: 1;">
-                            <button class="btn-primary" onclick="createNewList()" style="flex: 0.4; padding: 12px;">Create</button>
+                            <button class="btn-primary" onclick="createNewList()" style="flex: 0.4; padding: 8px;">Create</button>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="saved-lists">Select List</label>
-                        <!-- Hidden native select kept for accessibility; pills provide quick selection UI -->
-                        <select id="saved-lists" onchange="loadSelectedList()" style="display:none;">
-                            <option value="">-- Choose a list --</option>
-                        </select>
-
                         <div id="saved-lists-pills" class="list-pills" aria-hidden="false">
-                            <!-- Pills populated dynamically by updateListSelector() -->
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="names-textarea">Edit Items (comma or line-separated)</label>
-                        <textarea id="names-textarea" placeholder="Enter names separated by comma or new line"></textarea>
+                        <textarea id="names-textarea" placeholder="Enter names separated by comma or new line" style="min-height: 50px;"></textarea>
                     </div>
 
                     <div class="button-group">
                         <button class="btn-primary" onclick="saveCurrentList()">Save Items</button>
-                        <button class="btn-secondary" onclick="shuffleList()">🔀 Shuffle</button>
+                        <button class="btn-secondary" onclick="shuffleList()">Shuffle</button>
                     </div>
 
                     <div class="button-group" style="grid-template-columns: 1fr;">
@@ -805,8 +1128,13 @@
 
                     <div class="lists-container">
                         <div class="list-group">
-                            <div class="list-group-title">Current Items (0)</div>
-                            <div class="items-display" id="items-display"></div>
+                            <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                                <div class="list-group-title" id="current-items-title" style="margin-bottom:0;">Current Items (0)</div>
+                                <span class="collapsible-arrow">▼</span>
+                            </div>
+                            <div class="collapsible-body">
+                                <div class="items-display" id="items-display"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -818,111 +1146,76 @@
             <div class="main-content">
                 <!-- Left Panel - Settings -->
                 <div class="panel list-section">
-                    <h2 style="color: #17a2b8;">Number Settings</h2>
-                    <p style="color: #a0aec0; font-size: 0.9em; margin-bottom: 20px;">Set number range and rules</p>
+                    <h2>Number Settings</h2>
+                    <p style="color: var(--text-muted); font-size: 0.78em; margin-bottom: 12px;">Set number range and rules</p>
 
                     <div class="form-group">
                         <label>Min & Max Value</label>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                             <div>
-                                <label style="font-size: 0.85em; color: #7f8c8d;">Minimum</label>
-                                <input type="text" id="min-number" value="1" style="margin-top: 5px;">
+                                <label style="font-size: 0.72em; color: var(--text-muted);">Minimum</label>
+                                <input type="text" id="min-number" value="1" style="margin-top: 3px;">
                             </div>
                             <div>
-                                <label style="font-size: 0.85em; color: #7f8c8d;">Maximum</label>
-                                <input type="text" id="max-number" value="100" style="margin-top: 5px;">
+                                <label style="font-size: 0.72em; color: var(--text-muted);">Maximum</label>
+                                <input type="text" id="max-number" value="100" style="margin-top: 3px;">
                             </div>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <label style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                             <span>Times Drawn</span>
-                            <span style="color: #17a2b8; font-weight: 600; font-size: 1.1em;" id="draw-count">1</span>
+                            <span style="color: var(--accent); font-weight: 700; font-size: 0.9em;" id="draw-count">1</span>
                         </label>
-                        <div style="position: relative; margin-top: 8px;">
+                        <div style="position: relative; margin-top: 4px;">
                             <input type="range" id="draw-slider" min="1" max="20" value="1" 
-                                style="width: 100%; height: 8px; border-radius: 5px; background: #2c3e50; outline: none; -webkit-appearance: none; appearance: none; cursor: pointer;"
+                                style="width: 100%; height: 6px; border-radius: 3px; background: var(--surface-3); outline: none; -webkit-appearance: none; appearance: none; cursor: pointer;"
                                 oninput="updateDrawCount(this.value)">
-                            <style>
-                                #draw-slider::-webkit-slider-thumb {
-                                    -webkit-appearance: none;
-                                    appearance: none;
-                                    width: 24px;
-                                    height: 24px;
-                                    border-radius: 50%;
-                                    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
-                                    cursor: pointer;
-                                    box-shadow: 0 2px 8px rgba(23, 162, 184, 0.5);
-                                    border: 2px solid #0f1419;
-                                    transition: box-shadow 0.2s;
-                                    margin-top: -8px;
-                                }
-                                #draw-slider::-webkit-slider-thumb:hover {
-                                    box-shadow: 0 4px 12px rgba(23, 162, 184, 0.8);
-                                }
-                                #draw-slider::-moz-range-thumb {
-                                    width: 24px;
-                                    height: 24px;
-                                    border-radius: 50%;
-                                    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
-                                    cursor: pointer;
-                                    box-shadow: 0 2px 8px rgba(23, 162, 184, 0.5);
-                                    border: 2px solid #0f1419;
-                                    transition: box-shadow 0.2s;
-                                    margin-top: -8px;
-                                }
-                                #draw-slider::-moz-range-thumb:hover {
-                                    box-shadow: 0 4px 12px rgba(23, 162, 184, 0.8);
-                                }
-                                #draw-slider::-webkit-slider-runnable-track {
-                                    background: linear-gradient(to right, #17a2b8 0%, #17a2b8 var(--value), #2c3e50 var(--value), #2c3e50 100%);
-                                    height: 8px;
-                                    border-radius: 5px;
-                                }
-                                #draw-slider::-moz-range-track {
-                                    background: transparent;
-                                }
-                            </style>
-                            <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.8em; color: #7f8c8d;">
-                                <span>0</span>
+                            <div style="display: flex; justify-content: space-between; margin-top: 5px; font-size: 0.68em; color: var(--text-muted);">
+                                <span>1</span>
                                 <span id="draw-max-label">20</span>
                             </div>
                         </div>
                     </div>
 
-                    <div class="form-group" style="display: flex; align-items: center; justify-content: space-between; margin-top: 25px;">
+                    <div class="form-group" style="display: flex; align-items: center; justify-content: space-between; margin-top: 12px;">
                         <label style="margin-bottom: 0;">Allow Repeats</label>
                         <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 0;">
-                            <input type="checkbox" id="allow-repeats" style="margin-right: 8px; width: 20px; height: 20px; cursor: pointer;">
-                            <span style="color: #a0aec0; font-size: 0.9em;">Exclude drawn numbers</span>
+                            <input type="checkbox" id="exclude-drawn" style="margin-right: 5px; width: 14px; height: 14px; cursor: pointer; accent-color:var(--accent);">
+                            <span style="color: var(--text-muted); font-size: 0.78em;">Exclude drawn numbers</span>
                         </label>
                     </div>
 
-                    <button class="spin-button" style="width: 100%; margin-top: 30px;" onclick="pickNumber()">▶ Start Draw</button>
+                    <button class="spin-button" style="width: 100%; margin-top: 14px;" onclick="pickNumber()">Start Draw</button>
                 </div>
 
                 <!-- Right Panel - Display -->
-                <div class="panel" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <div class="panel" style="display: flex; flex-direction: column; align-items: center; justify-content: center; overflow-y: auto;">
                     <div style="text-align: center;">
-                        <p style="color: #a0aec0; font-size: 0.95em; margin-bottom: 20px;">Current Number</p>
-                        <div class="number-display" id="number-display" style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 15px; color: white; font-size: 3em; font-weight: 700; margin: 0 auto 40px; min-height: 60px;">
+                        <p style="color: var(--text-muted); font-size: 0.78em; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500;">Current Number</p>
+                        <div class="number-display" id="number-display" style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px; margin: 0 auto 24px; min-height: 90px;">
                             <div id="number-display-content" style="text-align: center;">
-                                <div style="font-size: 2.5em; margin-bottom: 10px;">🎰</div>
-                                <div style="font-size: 0.75em; color: #a0aec0; line-height: 1.4;">
+                                <div style="font-size: 2.2em; margin-bottom: 6px;">🎯</div>
+                                <div style="font-size: 0.7em; color: var(--text-muted); line-height: 1.4;">
                                     <div>Set range & quantity</div>
-                                    <div style="margin-top: 4px;">Click start to draw</div>
+                                    <div style="margin-top: 3px;">Click start to draw</div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div style="width: 100%; margin-top: 30px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                            <h3 style="color: #ffffff; font-size: 1em; font-weight: 700;">Draw Record</h3>
-                            <button class="btn-secondary" style="padding: 6px 12px; font-size: 0.85em;" onclick="clearNumberHistory()">Clear</button>
+                    <div style="width: 100%; margin-top: 16px;">
+                        <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                            <h3 style="color: var(--text-primary); font-size: 0.8em; font-weight: 600; margin:0;">Draw Record</h3>
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <button class="btn-secondary" style="padding:3px 6px; font-size:0.68em;" onclick="event.stopPropagation(); clearNumberHistory();">Clear</button>
+                                <span class="collapsible-arrow">▼</span>
+                            </div>
                         </div>
-                        <div class="number-history" id="number-history" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+                        <div class="collapsible-body">
+                            <div class="number-history" id="number-history" style="margin-top:8px;"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -930,66 +1223,71 @@
 
         <!-- Group Selector Mode -->
         <div id="group-mode" class="mode-content">
-            <div class="main-content" style="grid-template-columns: 1fr 1.2fr; gap: 24px;">
+            <div class="main-content" style="grid-template-columns: 1fr 1.2fr; gap: 14px;">
                 <!-- Left Panel - Group Management -->
                 <div class="panel list-section">
-                    <h2 style="color: #17a2b8;">Group Management</h2>
+                    <h2>Group Management</h2>
 
                     <div class="form-group">
                         <label>Grouping Mode</label>
-                        <div style="display:flex; gap:12px; align-items:center; margin-top:8px; flex-direction: column; align-items: flex-start;">
-                            <label style="display:flex; align-items:center; gap:8px; color:#a0aec0;"><input type="radio" name="group-mode" value="size" checked onchange="computeGroupPreview()"> Each group has N members</label>
-                            <label style="display:flex; align-items:center; gap:8px; color:#a0aec0;"><input type="radio" name="group-mode" value="count" onchange="computeGroupPreview()"> Divide into K groups</label>
+                        <div style="display:flex; gap:8px; align-items:center; margin-top:4px; flex-direction: column; align-items: flex-start;">
+                            <label style="display:flex; align-items:center; gap:5px; color:var(--text-muted); font-size:0.78em;"><input type="radio" name="group-mode" value="size" checked onchange="computeGroupPreview()" style="accent-color:var(--accent);"> Each group has N members</label>
+                            <label style="display:flex; align-items:center; gap:5px; color:var(--text-muted); font-size:0.78em;"><input type="radio" name="group-mode" value="count" onchange="computeGroupPreview()" style="accent-color:var(--accent);"> Divide into K groups</label>
                         </div>
                     </div>
 
-                    <div class="form-group" style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                    <div class="form-group" style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
                         <div>
                             <label>Number</label>
-                            <input type="number" id="group-number" value="3" min="1" style="margin-top:6px; width:100%;" oninput="computeGroupPreview()">
+                            <input type="number" id="group-number" value="3" min="1" style="margin-top:3px; width:100%;" oninput="computeGroupPreview()">
                         </div>
                         <div>
-                            <label style="color:#a0aec0; font-size: 0.85em;">Estimated</label>
-                            <div id="group-preview" style="padding:10px; background:rgba(23,162,184,0.1); border-radius:6px; border:1px solid rgba(23,162,184,0.3); margin-top:6px; color:#17a2b8; font-weight: 600;">—</div>
+                            <label style="font-size: 0.72em; color: var(--text-muted);">Estimated</label>
+                            <div id="group-preview" style="padding:6px; background:var(--accent-dim); border-radius:5px; border:1px solid rgba(110,231,183,0.2); margin-top:3px; color:var(--accent); font-weight: 600; font-size:0.78em;">—</div>
                         </div>
                     </div>
 
-                    <div class="form-group" style="display:flex; gap:10px; align-items:center;">
-                        <input type="text" id="group-member-input" placeholder="Enter name" style="flex:1; padding:10px;">
-                        <button class="btn-primary" style="flex:0; padding:10px 14px;" onclick="addSingleMember()">＋</button>
+                    <div class="form-group" style="display:flex; gap:6px; align-items:center;">
+                        <input type="text" id="group-member-input" placeholder="Enter name" style="flex:1; padding:7px;">
+                        <button class="btn-primary" style="flex:0; padding:7px 10px;" onclick="addSingleMember()">+</button>
                     </div>
 
                     <div class="form-group">
                         <label for="group-members">Batch Add</label>
-                        <textarea id="group-members" placeholder="Paste names separated by comma or newline" style="min-height: 80px;"></textarea>
-                        <div style="display:flex; gap:8px; margin-top:10px; flex-wrap: wrap;">
+                        <textarea id="group-members" placeholder="Paste names separated by comma or newline" style="min-height: 50px;"></textarea>
+                        <div style="display:flex; gap:5px; margin-top:6px; flex-wrap: wrap;">
                             <button class="btn-primary" onclick="addBatchMembers()">Add Batch</button>
-                            <button class="btn-secondary" onclick="shuffleGroup()">🔀 Shuffle</button>
+                            <button class="btn-secondary" onclick="shuffleGroup()">Shuffle</button>
                             <button class="btn-secondary" onclick="clearGroupMembers()">Clear</button>
                         </div>
                     </div>
 
-                    <div class="lists-container" style="margin-bottom: 16px;">
+                    <div class="lists-container" style="margin-bottom: 10px;">
                         <div class="list-group">
-                            <div class="list-group-title">Members (<span id="group-count">0</span>)</div>
-                            <div class="items-display" id="group-items-display" style="max-height: 150px; overflow-y: auto;"></div>
+                            <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                                <div class="list-group-title" style="margin-bottom:0;">Members (<span id="group-count">0</span>)</div>
+                                <span class="collapsible-arrow">▼</span>
+                            </div>
+                            <div class="collapsible-body">
+                                <div class="items-display" id="group-items-display" style="max-height: 100px; overflow-y: auto;"></div>
+                            </div>
                         </div>
                     </div>
 
-                    <button class="spin-button" style="width: 100%; padding:12px 20px; margin-bottom: 10px;" onclick="startGrouping()">👥 Start Grouping</button>
-                    <button class="btn-secondary" style="width: 100%; padding:10px 20px;" onclick="exportGroupsCSV()">📥 Export CSV</button>
+                    <button class="spin-button" style="width: 100%; padding:8px 14px; margin-bottom: 6px;" onclick="startGrouping()">Start Grouping</button>
+                    <button class="btn-secondary" style="width: 100%; padding:7px 14px;" onclick="exportGroupsCSV()">Export CSV</button>
                 </div>
 
                 <!-- Right Panel - Group Results -->
                 <div class="panel" style="display: flex; flex-direction: column;">
-                    <h2 style="color: #17a2b8;">Group Results</h2>
+                    <h2>Group Results</h2>
                     <div id="group-results" style="
                         display: grid;
-                        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                        gap: 16px;
+                        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                        gap: 10px;
                         flex: 1;
                         overflow-y: auto;
-                        padding-right: 8px;
+                        padding-right: 4px;
                     "></div>
                 </div>
             </div>
@@ -997,25 +1295,125 @@
     </div>
 
     <script>
-        // ==================== Storage Management ====================
+        // ==================== Utility Functions ====================
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function parseListText(text) {
+            return text.split(/[,\n]+/).map(s => s.trim()).filter(s => s.length > 0);
+        }
+
+        function debounce(fn, ms) {
+            let timer;
+            return function (...args) {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn.apply(this, args), ms);
+            };
+        }
+
+        function toggleCollapsible(header) {
+            header.classList.toggle('collapsed');
+            const body = header.nextElementSibling;
+            if (body) body.classList.toggle('collapsed');
+        }
+
+        // ==================== Cached DOM References ====================
+        const els = {};
+        function cacheDom() {
+            els.namesTextarea = document.getElementById('names-textarea');
+            els.numberDisplay = document.getElementById('number-display');
+            els.drawSlider = document.getElementById('draw-slider');
+            els.drawCount = document.getElementById('draw-count');
+            els.drawMaxLabel = document.getElementById('draw-max-label');
+            els.minNumber = document.getElementById('min-number');
+            els.maxNumber = document.getElementById('max-number');
+            els.excludeDrawn = document.getElementById('exclude-drawn');
+            els.spinButton = document.getElementById('spin-button');
+            els.winnerDisplay = document.getElementById('winner-display');
+            els.itemsDisplay = document.getElementById('items-display');
+            els.currentItemsTitle = document.getElementById('current-items-title');
+            els.savedListsPills = document.getElementById('saved-lists-pills');
+            els.numberHistory = document.getElementById('number-history');
+            els.groupMembers = document.getElementById('group-members');
+            els.groupMemberInput = document.getElementById('group-member-input');
+            els.groupItemsDisplay = document.getElementById('group-items-display');
+            els.groupCount = document.getElementById('group-count');
+            els.groupNumber = document.getElementById('group-number');
+            els.groupPreview = document.getElementById('group-preview');
+            els.groupResults = document.getElementById('group-results');
+            els.wheelHistoryList = document.getElementById('wheel-history-list');
+            els.wheelMode = document.getElementById('wheel-mode');
+        }
+
+        // ==================== Cached localStorage ====================
+        let cachedLists = null;
+        let cachedListsJson = '';
+
         function getStoredLists() {
-            const stored = localStorage.getItem('wheelLists');
-            return stored ? JSON.parse(stored) : {};
+            const raw = localStorage.getItem('wheelLists');
+            if (raw === cachedListsJson) return cachedLists;
+            cachedListsJson = raw;
+            cachedLists = raw ? JSON.parse(raw) : {};
+            return cachedLists;
         }
 
         function saveLists(lists) {
-            localStorage.setItem('wheelLists', JSON.stringify(lists));
-        }
-
-        function getCurrentItems() {
-            const lists = getStoredLists();
-            return lists[currentListName] || [];
+            cachedLists = lists;
+            cachedListsJson = JSON.stringify(lists);
+            localStorage.setItem('wheelLists', cachedListsJson);
         }
 
         function setCurrentItems(items) {
+            if (!currentListName) return;
             const lists = getStoredLists();
             lists[currentListName] = items;
             saveLists(lists);
+        }
+
+        // ==================== Event Delegation for Item Tags ====================
+        // Single listener for all remove buttons — avoids creating N closures per rebuild
+        els.itemsDisplay = null;
+        els.groupItemsDisplay = null;
+
+        function renderItemTags(containerId, items, removeCallback) {
+            const display = document.getElementById(containerId);
+            display.textContent = '';
+            const fragment = document.createDocumentFragment();
+            items.forEach((item, index) => {
+                const tag = document.createElement('div');
+                tag.className = 'item-tag';
+                const span = document.createElement('span');
+                span.textContent = item;
+                const btn = document.createElement('button');
+                btn.textContent = '\u00d7';
+                btn.dataset.index = index;
+                tag.appendChild(span);
+                tag.appendChild(btn);
+                fragment.appendChild(tag);
+            });
+            display.appendChild(fragment);
+        }
+
+        // Attach delegation once per container
+        function setupItemDelegation(containerId, removeCallback) {
+            const container = document.getElementById(containerId);
+            container.addEventListener('click', function(e) {
+                const btn = e.target.closest('button');
+                if (!btn) return;
+                const idx = parseInt(btn.dataset.index, 10);
+                if (!isNaN(idx)) removeCallback(idx);
+            });
+        }
+
+        function refreshWheelView() {
+            updateListSelector();
+            updateItemsDisplay();
+            drawWheel();
         }
 
         // ==================== List Management ====================
@@ -1039,76 +1437,73 @@
             saveLists(lists);
             currentListName = name;
             currentItems = [];
-            updateListSelector();
-            updateItemsDisplay();
-            document.getElementById('names-textarea').value = '';
+            refreshWheelView();
+            els.namesTextarea.value = '';
             document.getElementById('list-name').value = '';
             alert('List created successfully');
         }
 
         function updateListSelector() {
             const lists = getStoredLists();
-            const select = document.getElementById('saved-lists');
-            select.innerHTML = '<option value="">-- Choose a list --</option>';
+            const container = els.savedListsPills;
+            if (!container) return;
+            container.textContent = '';
+            const fragment = document.createDocumentFragment();
 
-            // Populate native select (hidden) for accessibility
             for (const name in lists) {
-                const option = document.createElement('option');
-                option.value = name;
-                option.textContent = `${name} (${lists[name].length} items)`;
-                select.appendChild(option);
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'pill-button';
+                btn.textContent = `${name} (${lists[name].length})`;
+                btn.dataset.listName = name;
+                if (currentListName === name) btn.classList.add('active');
+                fragment.appendChild(btn);
             }
 
-            if (currentListName) {
-                select.value = currentListName;
-            }
+            const clearBtn = document.createElement('button');
+            clearBtn.type = 'button';
+            clearBtn.className = 'pill-button';
+            clearBtn.textContent = 'All Lists';
+            clearBtn.dataset.listName = '';
+            fragment.insertBefore(clearBtn, fragment.firstChild);
+            container.appendChild(fragment);
+        }
 
-            // Populate pill buttons for quick selection
-            const pillsContainer = document.getElementById('saved-lists-pills');
-            if (pillsContainer) {
-                pillsContainer.innerHTML = '';
-                for (const name in lists) {
-                    const btn = document.createElement('button');
-                    btn.type = 'button';
-                    btn.className = 'pill-button';
-                    btn.textContent = `${name} (${lists[name].length})`;
-                    btn.onclick = () => selectListByName(name);
-                    if (currentListName === name) btn.classList.add('active');
-                    pillsContainer.appendChild(btn);
-                }
-
-                // Add an 'All Lists' / clear button if no selection
-                const clearBtn = document.createElement('button');
-                clearBtn.type = 'button';
-                clearBtn.className = 'pill-button';
-                clearBtn.textContent = 'All Lists';
-                clearBtn.onclick = () => {
+        // Single delegation for pill buttons
+        function setupPillDelegation() {
+            els.savedListsPills.addEventListener('click', function(e) {
+                const btn = e.target.closest('.pill-button');
+                if (!btn) return;
+                const name = btn.dataset.listName;
+                if (name) {
+                    selectListByName(name);
+                } else {
                     currentListName = null;
                     currentItems = [];
-                    document.getElementById('names-textarea').value = '';
+                    els.namesTextarea.value = '';
                     updateItemsDisplay();
                     drawWheel();
                     updateListSelector();
                     updateWheelHistory();
-                };
-                pillsContainer.insertBefore(clearBtn, pillsContainer.firstChild);
-            }
+                }
+            });
         }
 
         function selectListByName(name) {
-            const select = document.getElementById('saved-lists');
-            if (select) select.value = name;
-            loadSelectedList();
-            // refresh pills highlighting
+            currentListName = name;
+            const lists = getStoredLists();
+            currentItems = [...(lists[name] || [])];
+            els.namesTextarea.value = currentItems.join('\n');
+            refreshWheelView();
+            updateWheelHistory();
             updateListSelector();
         }
 
         function loadSelectedList() {
-            const name = document.getElementById('saved-lists').value;
+            const name = currentListName;
             if (!name) {
-                currentListName = null;
                 currentItems = [];
-                document.getElementById('names-textarea').value = '';
+                els.namesTextarea.value = '';
                 updateItemsDisplay();
                 drawWheel();
                 updateWheelHistory();
@@ -1116,11 +1511,9 @@
             }
 
             const lists = getStoredLists();
-            currentListName = name;
             currentItems = [...lists[name]];
-            document.getElementById('names-textarea').value = currentItems.join('\n');
-            updateItemsDisplay();
-            drawWheel();
+            els.namesTextarea.value = currentItems.join('\n');
+            refreshWheelView();
             updateWheelHistory();
         }
 
@@ -1130,11 +1523,7 @@
                 return;
             }
 
-            const textarea = document.getElementById('names-textarea').value;
-            const items = textarea
-                .split(/[,\n]+/)
-                .map(item => item.trim())
-                .filter(item => item.length > 0);
+            const items = parseListText(els.namesTextarea.value);
 
             if (items.length === 0) {
                 alert('Please enter at least one item');
@@ -1143,9 +1532,7 @@
 
             currentItems = items;
             setCurrentItems(items);
-            updateListSelector();
-            updateItemsDisplay();
-            drawWheel();
+            refreshWheelView();
             alert('List saved successfully');
         }
 
@@ -1155,13 +1542,9 @@
                 return;
             }
 
-            for (let i = currentItems.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [currentItems[i], currentItems[j]] = [currentItems[j], currentItems[i]];
-            }
-
+            shuffleArray(currentItems);
             setCurrentItems(currentItems);
-            document.getElementById('names-textarea').value = currentItems.join('\n');
+            els.namesTextarea.value = currentItems.join('\n');
             updateItemsDisplay();
             drawWheel();
         }
@@ -1181,42 +1564,23 @@
             saveLists(lists);
             currentListName = null;
             currentItems = [];
-            document.getElementById('names-textarea').value = '';
+            els.namesTextarea.value = '';
             document.getElementById('list-name').value = '';
-            updateListSelector();
-            updateItemsDisplay();
-            drawWheel();
+            refreshWheelView();
         }
 
         function removeItem(index) {
             currentItems.splice(index, 1);
             setCurrentItems(currentItems);
-            document.getElementById('names-textarea').value = currentItems.join('\n');
+            els.namesTextarea.value = currentItems.join('\n');
             updateItemsDisplay();
             drawWheel();
         }
 
         function updateItemsDisplay() {
-            const display = document.getElementById('items-display');
             const count = currentItems.length;
-            document.querySelector('.list-group-title').textContent = `Current Items (${count})`;
-            display.innerHTML = '';
-
-            currentItems.forEach((item, index) => {
-                const tag = document.createElement('div');
-                tag.className = 'item-tag';
-                
-                const span = document.createElement('span');
-                span.textContent = item;
-                
-                const btn = document.createElement('button');
-                btn.textContent = '×';
-                btn.onclick = () => removeItem(index);
-                
-                tag.appendChild(span);
-                tag.appendChild(btn);
-                display.appendChild(tag);
-            });
+            els.currentItemsTitle.textContent = `Current Items (${count})`;
+            renderItemTags('items-display', currentItems, removeItem);
         }
 
         // ==================== Wheel Drawing ====================
@@ -1226,8 +1590,8 @@
         canvas.width = canvas.height = canvasSize;
 
         const colors = [
-            '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8',
-            '#F7DC6F', '#BB8FCE', '#85C1E2', '#F8B739', '#52C0A1'
+            '#34d399', '#60a5fa', '#a78bfa', '#f472b6', '#fbbf24',
+            '#2dd4bf', '#818cf8', '#fb923c', '#4ade80', '#f87171'
         ];
 
         let wheelRotation = 0;
@@ -1239,11 +1603,9 @@
             const centerX = canvasSize / 2;
             const centerY = canvasSize / 2;
 
-            // Clear canvas to keep it transparent (no square background)
             ctx.clearRect(0, 0, canvasSize, canvasSize);
 
             if (currentItems.length === 0) {
-                // Draw only the circular placeholder so no square shows
                 ctx.beginPath();
                 ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
                 ctx.fillStyle = '#2d3748';
@@ -1291,9 +1653,9 @@
 
             ctx.beginPath();
             ctx.arc(centerX, centerY, 28, 0, 2 * Math.PI);
-            ctx.fillStyle = '#fff';
+            ctx.fillStyle = '#0c0f14';
             ctx.fill();
-            ctx.strokeStyle = '#17a2b8';
+            ctx.strokeStyle = '#6ee7b7';
             ctx.lineWidth = 3;
             ctx.stroke();
 
@@ -1310,10 +1672,9 @@
             if (isSpinning) return;
 
             isSpinning = true;
-            document.getElementById('spin-button').disabled = true;
+            els.spinButton.disabled = true;
 
-            const winnerDisplay = document.getElementById('winner-display');
-            winnerDisplay.classList.remove('active');
+            els.winnerDisplay.classList.remove('active');
 
             const winnerIndex = Math.floor(Math.random() * currentItems.length);
             const winner = currentItems[winnerIndex];
@@ -1343,25 +1704,21 @@
                     animationFrameId = requestAnimationFrame(animate);
                 } else {
                     isSpinning = false;
-                    document.getElementById('spin-button').disabled = false;
+                    els.spinButton.disabled = false;
                     
                     displayWinner(winner);
-                    // Add to wheel history
                     addWheelHistory(winner);
 
-                    // Respect user preference: remove winner after draw only if checkbox is checked
                     const removeCheckbox = document.getElementById('remove-after-draw');
                     const removeAfter = removeCheckbox ? removeCheckbox.checked : true;
                     if (removeAfter) {
                         currentItems.splice(winnerIndex, 1);
                         setCurrentItems(currentItems);
                         updateItemsDisplay();
-                        document.getElementById('names-textarea').value = currentItems.join('\n');
+                        els.namesTextarea.value = currentItems.join('\n');
                     }
                     
-                    setTimeout(() => {
-                        drawWheel(wheelRotation);
-                    }, 100);
+                    drawWheel(wheelRotation);
                 }
             }
 
@@ -1369,10 +1726,9 @@
         }
 
         function displayWinner(name) {
-            const display = document.getElementById('winner-display');
-            display.querySelector('.winner-name').textContent = name;
-            display.querySelector('.winner-label').textContent = '🎉 Winner!';
-            display.classList.add('active');
+            els.winnerDisplay.querySelector('.winner-name').textContent = name;
+            els.winnerDisplay.querySelector('.winner-label').textContent = '🎉 Winner!';
+            els.winnerDisplay.classList.add('active');
         }
 
         // ==================== Wheel History ====================
@@ -1383,14 +1739,13 @@
         }
 
         function updateWheelHistory() {
-            const listEl = document.getElementById('wheel-history-list');
+            const listEl = els.wheelHistoryList;
             if (!listEl) return;
-            listEl.innerHTML = '';
+            listEl.textContent = '';
 
-            // If a list is selected, show only entries for that list (per-list history)
             if (!currentListName) {
                 const hint = document.createElement('div');
-                hint.style.color = '#a0aec0';
+                hint.style.color = '#64748b';
                 hint.style.padding = '8px';
                 hint.textContent = 'Select a list to view its draw history.';
                 listEl.appendChild(hint);
@@ -1401,32 +1756,34 @@
 
             if (filtered.length === 0) {
                 const hint = document.createElement('div');
-                hint.style.color = '#a0aec0';
+                hint.style.color = '#64748b';
                 hint.style.padding = '8px';
                 hint.textContent = 'No history for this list yet.';
                 listEl.appendChild(hint);
                 return;
             }
 
-            filtered.slice(0, 50).forEach(entry => {
+            const fragment = document.createDocumentFragment();
+            const shown = filtered.length > 50 ? filtered.slice(0, 50) : filtered;
+            for (let i = 0; i < shown.length; i++) {
+                const entry = shown[i];
                 const item = document.createElement('div');
                 item.className = 'wheel-history-item';
                 const left = document.createElement('div');
                 left.textContent = entry.name;
                 const right = document.createElement('div');
                 right.className = 'time';
-                const t = new Date(entry.time);
-                right.textContent = t.toLocaleString();
+                right.textContent = new Date(entry.time).toLocaleString();
                 item.appendChild(left);
                 item.appendChild(right);
-                listEl.appendChild(item);
-            });
+                fragment.appendChild(item);
+            }
+            listEl.appendChild(fragment);
         }
 
         function addWheelHistory(name) {
             const entry = { name: name, time: new Date().toISOString(), list: currentListName || '' };
             wheelHistory.unshift(entry);
-            // keep history bounded
             if (wheelHistory.length > 200) wheelHistory.length = 200;
             saveWheelHistory();
             updateWheelHistory();
@@ -1440,15 +1797,15 @@
         }
 
         // ==================== Number Picker ====================
-        let numberHistory = [];
-        let batchHistory = []; // Track batches of drawn numbers
+        let batchHistory = [];
         let drawnNumbers = new Set();
+        let rollAnimFrameId = null;
 
         function pickNumber() {
-            const min = parseInt(document.getElementById('min-number').value) || 0;
-            const max = parseInt(document.getElementById('max-number').value) || 100;
-            const allowRepeats = document.getElementById('allow-repeats').checked;
-            const timesToDraw = parseInt(document.getElementById('draw-slider').value) || 1;
+            const min = parseInt(els.minNumber.value) || 0;
+            const max = parseInt(els.maxNumber.value) || 100;
+            const excludeDrawn = els.excludeDrawn.checked;
+            const timesToDraw = parseInt(els.drawSlider.value) || 1;
             const btn = document.querySelector('#number-mode .spin-button') || document.querySelector('.spin-button');
 
             if (min >= max) {
@@ -1461,147 +1818,161 @@
                 return;
             }
 
-            const displayEl = document.getElementById('number-display');
-
-            // Disable the button during animation
             if (btn) btn.disabled = true;
+
+            // Clear all old number-item spans from previous draws
+            els.numberDisplay.querySelectorAll('.number-item').forEach(s => s.remove());
+
+            // Also cancel any ongoing roll animation
+            if (rollAnimFrameId) {
+                cancelAnimationFrame(rollAnimFrameId);
+                rollAnimFrameId = null;
+            }
+
+            els.numberDisplay.classList.add('rolling');
+            els.numberDisplay.classList.add('has-numbers');
 
             const range = max - min + 1;
 
-            if (allowRepeats && drawnNumbers.size >= range) {
-                // If we've drawn all numbers, reset
+            if (excludeDrawn && drawnNumbers.size >= range) {
                 drawnNumbers.clear();
             }
 
-            // Draw multiple numbers based on slider value
+            // Build available pool once before the draw
+            let availablePool = null;
+            if (excludeDrawn) {
+                availablePool = [];
+                for (let j = min; j <= max; j++) {
+                    if (!drawnNumbers.has(j)) availablePool.push(j);
+                }
+                if (availablePool.length === 0) {
+                    alert('All numbers have been drawn!');
+                    els.numberDisplay.classList.remove('rolling');
+                    els.numberDisplay.classList.remove('has-numbers');
+                    if (btn) btn.disabled = false;
+                    return;
+                }
+            }
+
+            // Pick the actual numbers up front
             const drawnThisRound = [];
-            let rollCounter = 0;
-            const rollDuration = 1000; // ms
-            const rollInterval = 60; // ms
+            for (let i = 0; i < timesToDraw; i++) {
+                if (availablePool) {
+                    if (availablePool.length === 0) break;
+                    const idx = Math.floor(Math.random() * availablePool.length);
+                    const num = availablePool.splice(idx, 1)[0];
+                    drawnNumbers.add(num);
+                    drawnThisRound.push(num);
+                } else {
+                    drawnThisRound.push(Math.floor(Math.random() * range) + min);
+                }
+            }
 
-            let rollTimer = null;
-            let start = Date.now();
+            // Create fresh spans for this draw
+            const spans = [];
+            for (let i = 0; i < drawnThisRound.length; i++) {
+                const span = document.createElement('span');
+                span.className = 'number-item';
+                els.numberDisplay.appendChild(span);
+                spans.push(span);
+            }
 
-            // Add rolling class to start animation
-            displayEl.classList.add('rolling');
+            // Animate the roll
+            const rollDuration = 1000;
+            let rollStartTime = Date.now();
 
-            rollTimer = setInterval(() => {
-                const now = Date.now();
-                if (now - start >= rollDuration) {
-                    clearInterval(rollTimer);
+            function rollTick() {
+                const elapsed = Date.now() - rollStartTime;
 
-                    // Draw the required number of numbers
-                    for (let i = 0; i < timesToDraw; i++) {
-                        let finalNumber;
-                        if (allowRepeats) {
-                            let availableNumbers = [];
-                            for (let j = min; j <= max; j++) {
-                                if (!drawnNumbers.has(j)) availableNumbers.push(j);
-                            }
-                            if (availableNumbers.length === 0) {
-                                if (i === 0) {
-                                    alert('All numbers have been drawn!');
-                                    displayEl.classList.remove('rolling');
-                                    if (btn) btn.disabled = false;
-                                    return;
-                                }
-                                break;
-                            }
-                            finalNumber = availableNumbers[Math.floor(Math.random() * availableNumbers.length)];
-                            drawnNumbers.add(finalNumber);
-                        } else {
-                            finalNumber = Math.floor(Math.random() * (max - min + 1)) + min;
-                        }
-                        drawnThisRound.push(finalNumber);
-                    }
+                if (elapsed >= rollDuration) {
+                    // Show final numbers
+                    drawnThisRound.forEach((num, i) => {
+                        if (spans[i]) spans[i].textContent = num;
+                    });
+                    els.numberDisplay.classList.remove('rolling');
+                    els.numberDisplay.classList.add('animate');
 
-                    // Display the drawn numbers
-                    displayEl.innerHTML = drawnThisRound.map(num => `<span class="number-item">${num}</span>`).join('');
-                    displayEl.classList.remove('rolling');
-                    // trigger jump animation
-                    displayEl.classList.add('animate');
-
-                    // record history and update UI
-                    drawnThisRound.forEach(num => numberHistory.unshift(num));
-                    batchHistory.unshift(drawnThisRound); // Record batch
+                    batchHistory.unshift(drawnThisRound);
+                    if (batchHistory.length > 50) batchHistory.length = 50;
                     updateNumberHistory();
                     updateDrawProgress();
 
-                    // cleanup animation class after it finishes
                     setTimeout(() => {
-                        displayEl.classList.remove('animate');
+                        els.numberDisplay.classList.remove('animate');
                         if (btn) btn.disabled = false;
                     }, 800);
 
-                } else {
-                    // during roll, show random numbers preview
-                    const previewNumbers = [];
-                    for (let i = 0; i < timesToDraw; i++) {
-                        const preview = Math.floor(Math.random() * (max - min + 1)) + min;
-                        previewNumbers.push(preview);
-                    }
-                    displayEl.innerHTML = previewNumbers.map(num => `<span class="number-item">${num}</span>`).join('');
+                    return;
                 }
-            }, rollInterval);
+
+                // During roll, show random preview numbers
+                for (let i = 0; i < drawnThisRound.length; i++) {
+                    if (spans[i]) {
+                        spans[i].textContent = Math.floor(Math.random() * range) + min;
+                    }
+                }
+
+                rollAnimFrameId = requestAnimationFrame(rollTick);
+            }
+
+            rollAnimFrameId = requestAnimationFrame(rollTick);
         }
 
         function updateNumberHistory() {
-            const historyDiv = document.getElementById('number-history');
-            historyDiv.innerHTML = '';
-            batchHistory.slice(0, 20).forEach((batch, index) => {
+            els.numberHistory.textContent = '';
+            const fragment = document.createDocumentFragment();
+            const limit = batchHistory.length > 20 ? 20 : batchHistory.length;
+            for (let index = 0; index < limit; index++) {
+                const batch = batchHistory[index];
                 const item = document.createElement('div');
                 item.className = 'history-item';
-                const batchNumbers = batch.join(', ');
-                item.innerHTML = `<span style="color: #a0aec0; font-size: 0.8em;">#${index + 1}</span> <span style="color: #17a2b8; font-weight: 700;">${batchNumbers}</span>`;
-                item.style.display = 'flex';
-                item.style.gap = '8px';
-                item.style.alignItems = 'center';
-                item.style.padding = '8px 14px';
-                item.style.background = 'rgba(23, 162, 184, 0.15)';
-                item.style.borderRadius = '20px';
-                historyDiv.appendChild(item);
-            });
+                const idx = document.createElement('span');
+                idx.style.color = '#64748b';
+                idx.style.fontSize = '0.8em';
+                idx.textContent = `#${index + 1} `;
+                const nums = document.createElement('span');
+                nums.style.color = '#6ee7b7';
+                nums.style.fontWeight = '600';
+                nums.textContent = batch.join(', ');
+                item.appendChild(idx);
+                item.appendChild(nums);
+                fragment.appendChild(item);
+            }
+            els.numberHistory.appendChild(fragment);
         }
 
         function updateDrawProgress() {
-            const min = parseInt(document.getElementById('min-number').value) || 0;
-            const max = parseInt(document.getElementById('max-number').value) || 100;
+            const min = parseInt(els.minNumber.value) || 0;
+            const max = parseInt(els.maxNumber.value) || 100;
             const range = max - min + 1;
-            const slider = document.getElementById('draw-slider');
             
-            // Update slider max value based on range, but cap at 20
             const sliderMax = Math.min(range, 20);
-            slider.max = sliderMax;
-            document.getElementById('draw-max-label').textContent = sliderMax;
+            els.drawSlider.max = sliderMax;
+            els.drawMaxLabel.textContent = sliderMax;
             
-            // Ensure slider value doesn't exceed the new max
-            if (parseInt(slider.value) > sliderMax) {
-                slider.value = sliderMax;
+            if (parseInt(els.drawSlider.value) > sliderMax) {
+                els.drawSlider.value = sliderMax;
             }
             
-            // Display the current slider value (what user wants to draw)
-            document.getElementById('draw-count').textContent = slider.value;
+            els.drawCount.textContent = els.drawSlider.value;
             
-            // Update slider background gradient
-            const percentage = (parseInt(slider.value) / sliderMax) * 100;
-            slider.style.setProperty('--value', percentage + '%');
+            const percentage = (parseInt(els.drawSlider.value) / sliderMax) * 100;
+            els.drawSlider.style.setProperty('--value', percentage + '%');
         }
 
         function updateDrawCount(value) {
             const count = parseInt(value) || 0;
-            document.getElementById('draw-count').textContent = count;
+            els.drawCount.textContent = count;
             
-            // Update slider background gradient
-            const min = parseInt(document.getElementById('min-number').value) || 0;
-            const max = parseInt(document.getElementById('max-number').value) || 100;
+            const min = parseInt(els.minNumber.value) || 0;
+            const max = parseInt(els.maxNumber.value) || 100;
             const range = max - min + 1;
             const sliderMax = Math.min(range, 20);
             const percentage = (count / sliderMax) * 100;
-            document.getElementById('draw-slider').style.setProperty('--value', percentage + '%');
+            els.drawSlider.style.setProperty('--value', percentage + '%');
         }
 
         function clearNumberHistory() {
-            numberHistory = [];
             batchHistory = [];
             drawnNumbers.clear();
             restorePlaceholder();
@@ -1610,67 +1981,53 @@
         }
 
         function restorePlaceholder() {
-            const displayEl = document.getElementById('number-display');
-            displayEl.innerHTML = `
-                <div id="number-display-content" style="text-align: center;">
-                    <div style="font-size: 2.5em; margin-bottom: 10px;">🎰</div>
-                    <div style="font-size: 0.75em; color: #a0aec0; line-height: 1.4;">
-                        <div>Set range & quantity</div>
-                        <div style="margin-top: 4px;">Click start to draw</div>
-                    </div>
-                </div>
-            `;
+            els.numberDisplay.classList.remove('has-numbers');
+            els.numberDisplay.classList.remove('rolling');
+            els.numberDisplay.classList.remove('animate');
+            els.numberDisplay.textContent = '';
+            const content = document.createElement('div');
+            content.id = 'number-display-content';
+            content.style.textAlign = 'center';
+            const emoji = document.createElement('div');
+            emoji.style.fontSize = '2.5em';
+            emoji.style.marginBottom = '10px';
+            emoji.textContent = '🎰';
+            const text = document.createElement('div');
+            text.style.fontSize = '0.75em';
+            text.style.color = '#a0aec0';
+            text.style.lineHeight = '1.4';
+            const line1 = document.createElement('div');
+            line1.textContent = 'Set range & quantity';
+            const line2 = document.createElement('div');
+            line2.style.marginTop = '4px';
+            line2.textContent = 'Click start to draw';
+            text.appendChild(line1);
+            text.appendChild(line2);
+            content.appendChild(emoji);
+            content.appendChild(text);
+            els.numberDisplay.appendChild(content);
         }
 
         // ==================== Group Selector ====================
-        let currentGroupName = null;
         let currentGroupMembers = [];
 
-        function createGroup() {
-            const groupName = document.getElementById('group-name').value.trim();
-            const membersText = document.getElementById('group-members').value;
-
-            if (!groupName) {
-                alert('Please enter a group name');
-                return;
-            }
-
-            const members = membersText
-                .split(/[,\n]+/)
-                .map(item => item.trim())
-                .filter(item => item.length > 0);
-
-            if (members.length === 0) {
-                alert('Please enter at least one member');
-                return;
-            }
-
-            currentGroupName = groupName;
-            currentGroupMembers = members;
-            updateGroupDisplay();
-            document.getElementById('group-name').value = '';
-            document.getElementById('group-members').value = '';
-        }
-
-        // New group utilities (single add, batch add, preview, grouping)
         function addSingleMember() {
-            const input = document.getElementById('group-member-input');
-            const v = input.value.trim();
+            const v = els.groupMemberInput.value.trim();
             if (!v) return;
             currentGroupMembers.push(v);
             updateGroupDisplay();
-            input.value = '';
+            els.groupMemberInput.value = '';
             computeGroupPreview();
         }
 
         function addBatchMembers() {
-            const txt = document.getElementById('group-members').value;
+            const txt = els.groupMembers.value;
             if (!txt) return;
-            const items = txt.split(/[\n,]+/).map(s => s.trim()).filter(s => s.length > 0);
+            const items = parseListText(txt);
             if (items.length === 0) return;
             currentGroupMembers = currentGroupMembers.concat(items);
             updateGroupDisplay();
-            document.getElementById('group-members').value = '';
+            els.groupMembers.value = '';
             computeGroupPreview();
         }
 
@@ -1678,31 +2035,13 @@
             if (!confirm('Clear all group members?')) return;
             currentGroupMembers = [];
             updateGroupDisplay();
-            document.getElementById('group-members').value = '';
+            els.groupMembers.value = '';
             computeGroupPreview();
         }
 
         function updateGroupDisplay() {
-            const display = document.getElementById('group-items-display');
-            const countEl = document.getElementById('group-count');
-            display.innerHTML = '';
-            countEl.textContent = currentGroupMembers.length;
-
-            currentGroupMembers.forEach((member, index) => {
-                const tag = document.createElement('div');
-                tag.className = 'item-tag';
-                
-                const span = document.createElement('span');
-                span.textContent = member;
-                
-                const btn = document.createElement('button');
-                btn.textContent = '×';
-                btn.onclick = () => removeGroupMember(index);
-                
-                tag.appendChild(span);
-                tag.appendChild(btn);
-                display.appendChild(tag);
-            });
+            els.groupCount.textContent = currentGroupMembers.length;
+            renderItemTags('group-items-display', currentGroupMembers, removeGroupMember);
         }
 
         function removeGroupMember(index) {
@@ -1713,22 +2052,21 @@
 
         function computeGroupPreview() {
             const mode = document.querySelector('input[name="group-mode"]:checked')?.value || 'size';
-            const num = Math.max(1, parseInt(document.getElementById('group-number').value) || 1);
+            const num = Math.max(1, parseInt(els.groupNumber.value) || 1);
             const total = currentGroupMembers.length;
-            const previewEl = document.getElementById('group-preview');
 
             if (total === 0) {
-                previewEl.textContent = 'Estimated: 0 members';
+                els.groupPreview.textContent = 'Estimated: 0 members';
                 return;
             }
 
             if (mode === 'size') {
                 const groups = Math.ceil(total / num);
-                previewEl.textContent = `Estimated: ${groups} groups (${num} per group)`;
+                els.groupPreview.textContent = `Estimated: ${groups} groups (${num} per group)`;
             } else {
                 const per = Math.floor(total / num);
                 const extra = total % num;
-                previewEl.textContent = `Estimated: ${num} groups (about ${per}${extra>0?` (+1 for ${extra} groups)`:''} members)`;
+                els.groupPreview.textContent = `Estimated: ${num} groups (about ${per}${extra>0?` (+1 for ${extra} groups)`:''} members)`;
             }
         }
 
@@ -1739,23 +2077,15 @@
             }
 
             const mode = document.querySelector('input[name="group-mode"]:checked')?.value || 'size';
-            const num = Math.max(1, parseInt(document.getElementById('group-number').value) || 1);
-            const members = [...currentGroupMembers];
-
-            // shuffle members
-            for (let i = members.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [members[i], members[j]] = [members[j], members[i]];
-            }
+            const num = Math.max(1, parseInt(els.groupNumber.value) || 1);
+            const members = shuffleArray([...currentGroupMembers]);
 
             let groups = [];
             if (mode === 'size') {
-                // chunk by size
                 for (let i = 0; i < members.length; i += num) {
                     groups.push(members.slice(i, i + num));
                 }
             } else {
-                // divide into num groups, distribute extras
                 groups = Array.from({length: num}, () => []);
                 let idx = 0;
                 members.forEach(m => {
@@ -1768,105 +2098,71 @@
         }
 
         function renderGroupResults(groups) {
-            const container = document.getElementById('group-results');
-            container.innerHTML = '';
+            els.groupResults.textContent = '';
             
-            const colors = ['#f39c12', '#e74c3c', '#9b59b6', '#1abc9c', '#3498db', '#e67e22'];
+            const cardColors = ['#34d399', '#60a5fa', '#a78bfa', '#f472b6', '#fbbf24', '#2dd4bf'];
+            const fragment = document.createDocumentFragment();
             
             groups.forEach((g, i) => {
                 const card = document.createElement('div');
-                // Adaptive height based on member count: base height + (members * item height)
-                const baseHeight = 60; // header height
-                const itemHeight = 46; // per member item height with gap
-                const cardHeight = baseHeight + (g.length * itemHeight);
-                
-                card.style.cssText = `
-                    background: linear-gradient(135deg, rgba(15, 20, 25, 0.8) 0%, rgba(26, 32, 44, 0.8) 100%);
-                    border: 1px solid rgba(23, 162, 184, 0.3);
-                    border-radius: 12px;
-                    overflow: hidden;
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-                    display: flex;
-                    flex-direction: column;
-                    height: ${cardHeight}px;
-                `;
+                card.className = 'group-card';
                 
                 const header = document.createElement('div');
-                header.style.cssText = `
-                    background: linear-gradient(to right, ${colors[i % colors.length]}, ${colors[(i + 1) % colors.length]});
-                    padding: 14px 16px;
-                    color: white;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                `;
-                header.innerHTML = `
-                    <div>
-                        <div style="font-weight: 700; font-size: 1.1em;">Group ${i+1}</div>
-                    </div>
-                    <div style="text-align: right;">
-                        <div style="font-size: 0.9em; opacity: 0.9;">${g.length} members</div>
-                    </div>
-                `;
+                header.className = 'group-card-header';
+                header.style.background = `linear-gradient(to right, ${cardColors[i % cardColors.length]}, ${cardColors[(i + 1) % cardColors.length]})`;
+                
+                const titleDiv = document.createElement('div');
+                titleDiv.className = 'group-card-header-title';
+                titleDiv.textContent = `Group ${i + 1}`;
+                
+                const countDiv = document.createElement('div');
+                countDiv.className = 'group-card-header-count';
+                countDiv.textContent = `${g.length} members`;
+                
+                header.appendChild(titleDiv);
+                header.appendChild(countDiv);
                 
                 const content = document.createElement('div');
-                content.style.cssText = `
-                    padding: 14px 16px;
-                    color: #cbd5e0;
-                    flex: 1;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 10px;
-                `;
-                g.forEach((m, idx) => {
-                    const initial = m.charAt(0).toUpperCase();
-                    const bgColor = colors[idx % colors.length];
-                    
+                content.className = 'group-card-content';
+                
+                for (let idx = 0; idx < g.length; idx++) {
+                    const m = g[idx];
                     const row = document.createElement('div');
-                    row.style.cssText = 'display: flex; align-items: center; gap: 10px;';
+                    row.className = 'group-card-row';
                     
                     const avatar = document.createElement('div');
-                    avatar.style.cssText = `
-                        width: 36px;
-                        height: 36px;
-                        background: ${bgColor};
-                        color: white;
-                        border-radius: 50%;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-weight: 700;
-                        font-size: 0.95em;
-                        flex-shrink: 0;
-                    `;
-                    avatar.textContent = initial;
+                    avatar.className = 'group-card-avatar';
+                    avatar.style.background = cardColors[idx % cardColors.length];
+                    avatar.textContent = m.charAt(0).toUpperCase();
                     
                     const nameDiv = document.createElement('div');
-                    nameDiv.style.cssText = 'flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;';
+                    nameDiv.className = 'group-card-name';
                     nameDiv.textContent = m;
                     
                     row.appendChild(avatar);
                     row.appendChild(nameDiv);
                     content.appendChild(row);
-                });
+                }
                 
                 card.appendChild(header);
                 card.appendChild(content);
-                container.appendChild(card);
+                fragment.appendChild(card);
             });
+            els.groupResults.appendChild(fragment);
         }
 
         function exportGroupsCSV() {
-            const container = document.getElementById('group-results');
-            if (!container || container.children.length === 0) {
+            if (!els.groupResults || els.groupResults.children.length === 0) {
                 alert('No group results to export');
                 return;
             }
-            // Build CSV by reading group-results structure
-            let rows = [];
-            Array.from(container.children).forEach(box => {
-                const title = box.querySelector('strong')?.textContent || '';
-                const members = Array.from(box.querySelectorAll('div[style]')).map(d => d.textContent.trim());
+            const rows = [];
+            Array.from(els.groupResults.children).forEach(card => {
+                const title = card.querySelector('.group-card-header-title')?.textContent || '';
+                const members = [];
+                card.querySelectorAll('.group-card-name').forEach(el => {
+                    members.push(el.textContent.trim());
+                });
                 rows.push([title, ...members]);
             });
 
@@ -1882,33 +2178,12 @@
 
         function shuffleGroup() {
             if (currentGroupMembers.length === 0) {
-                alert('Please create a group first');
+                alert('Please add group members first');
                 return;
             }
 
-            for (let i = currentGroupMembers.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [currentGroupMembers[i], currentGroupMembers[j]] = [currentGroupMembers[j], currentGroupMembers[i]];
-            }
-
+            shuffleArray(currentGroupMembers);
             updateGroupDisplay();
-        }
-
-        
-
-        function pickGroupMember() {
-            if (currentGroupMembers.length === 0) {
-                alert('Please create a group first');
-                return;
-            }
-
-            const randomIndex = Math.floor(Math.random() * currentGroupMembers.length);
-            const selected = currentGroupMembers[randomIndex];
-
-            const display = document.getElementById('group-winner-display');
-            display.querySelector('.winner-name').textContent = selected;
-            display.querySelector('.winner-label').textContent = '✨ Selected Member';
-            display.classList.add('active');
         }
 
         // ==================== Mode Switching ====================
@@ -1932,22 +2207,27 @@
 
         // ==================== Initialization ====================
         window.addEventListener('load', function () {
+            cacheDom();
+            setupItemDelegation('items-display', removeItem);
+            setupItemDelegation('group-items-display', removeGroupMember);
+            setupPillDelegation();
             updateListSelector();
             drawWheel();
         });
 
-        window.addEventListener('resize', function () {
-            if (document.getElementById('wheel-mode').classList.contains('active')) {
+        window.addEventListener('resize', debounce(function () {
+            if (els.wheelMode && els.wheelMode.classList.contains('active')) {
                 drawWheel();
             }
-        });
+        }, 100));
 
         // Update slider when min/max values change
-        document.getElementById('min-number').addEventListener('change', updateDrawProgress);
-        document.getElementById('max-number').addEventListener('change', updateDrawProgress);
+        els.minNumber?.addEventListener('change', updateDrawProgress);
+        els.maxNumber?.addEventListener('change', updateDrawProgress);
         
         // Initialize slider on page load
         document.addEventListener('DOMContentLoaded', function() {
+            if (!els.drawSlider) cacheDom();
             updateDrawProgress();
         });
     </script>
