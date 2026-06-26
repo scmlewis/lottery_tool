@@ -945,69 +945,23 @@
 
         @media (max-width: 768px) {
             body {
-                padding: 8px 10px;
+                padding: 6px 8px;
             }
 
             header {
                 flex-direction: column;
-                gap: 6px;
+                gap: 5px;
                 min-height: auto;
-            }
-
-            h1 {
-                font-size: 0.95em;
-            }
-
-            .mode-tabs {
-                gap: 3px;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-
-            .mode-tab {
-                padding: 5px 12px;
-                font-size: 0.72em;
-            }
-
-            .panel {
-                padding: 14px;
-            }
-
-            .wheel-container {
-                width: min(200px, 55vw);
-            }
-
-            .main-content {
-                gap: 10px;
-            }
-
-            .number-display {
-                font-size: 2.2em !important;
-            }
-
-            .number-item {
-                min-width: 38px;
-                min-height: 38px;
-                font-size: 1.3em;
-            }
-
-            .list-section {
-                overflow-y: visible;
-            }
-        }
-
-        @media (max-width: 480px) {
-            body {
-                padding: 6px 8px;
+                padding: 2px 0;
             }
 
             h1 {
                 font-size: 0.88em;
             }
 
-            .panel {
-                padding: 10px;
-                border-radius: 10px;
+            .mode-tabs {
+                gap: 2px;
+                padding: 2px;
             }
 
             .mode-tab {
@@ -1015,29 +969,284 @@
                 font-size: 0.68em;
             }
 
-            .spin-button {
-                padding: 8px 14px;
+            .panel {
+                padding: 10px;
+            }
+
+            .panel h2 {
+                font-size: 0.82em;
+                margin-bottom: 10px;
+            }
+
+            .main-content {
+                gap: 8px;
+            }
+
+            .form-group {
+                margin-bottom: 8px;
+            }
+
+            label {
+                font-size: 0.72em;
+                margin-bottom: 3px;
+            }
+
+            input[type="text"],
+            textarea,
+            select {
+                padding: 6px 8px;
                 font-size: 0.78em;
+            }
+
+            textarea {
+                min-height: 40px !important;
+            }
+
+            button {
+                padding: 5px 10px;
+                font-size: 0.72em;
+            }
+
+            .button-group {
+                gap: 6px;
+                margin-top: 6px;
+            }
+
+            .spin-button {
+                padding: 7px 12px;
+                font-size: 0.78em;
+                margin-bottom: 6px;
+            }
+
+            /* Wheel mode mobile */
+            #wheel-mode .main-content {
+                display: flex;
+                flex-direction: column;
+            }
+
+            #wheel-mode .wheel-section {
+                padding-bottom: 8px;
             }
 
             .wheel-container {
                 width: min(180px, 50vw);
+                margin-bottom: 10px;
+            }
+
+            .winner-display {
+                padding: 8px;
+                min-height: 44px;
+            }
+
+            .winner-label {
+                font-size: 0.68em;
+                margin-bottom: 2px;
+            }
+
+            .winner-name {
+                font-size: 1.1em;
+            }
+
+            /* Wheel history compact */
+            .wheel-history {
+                margin-top: 6px;
+            }
+
+            .wheel-history-list {
+                max-height: 80px;
+                padding: 6px;
+            }
+
+            .wheel-history-item {
+                padding: 4px 6px;
+                font-size: 0.72em;
+            }
+
+            /* Number mode mobile */
+            #number-mode .main-content {
+                display: flex;
+                flex-direction: column;
             }
 
             .number-display {
-                font-size: 1.8em !important;
-                gap: 8px;
+                font-size: 2em !important;
+                margin: 16px 0;
+                min-height: 70px;
             }
 
             .number-item {
                 min-width: 34px;
                 min-height: 34px;
                 font-size: 1.1em;
-                padding: 4px 8px;
+                padding: 4px 6px;
+            }
+
+            #number-display-content div:last-child {
+                font-size: 0.65em;
+            }
+
+            .number-history {
+                gap: 4px;
+            }
+
+            .history-item {
+                padding: 3px 7px;
+                font-size: 0.7em;
+            }
+
+            /* Group mode mobile */
+            #group-mode .main-content {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            #group-mode .wheel-container {
+                width: min(160px, 45vw);
+            }
+
+            .lists-container {
+                margin-top: 8px;
+                margin-bottom: 6px;
+            }
+
+            .list-group {
+                padding: 6px 8px;
+            }
+
+            .items-display {
+                gap: 4px;
+            }
+
+            .item-tag {
+                padding: 2px 6px;
+                font-size: 0.68em;
+            }
+
+            .item-tag button {
+                width: 12px;
+                height: 12px;
+                font-size: 0.75em;
+            }
+
+            #group-results {
+                grid-template-columns: 1fr !important;
+                gap: 8px;
+            }
+
+            .group-card-header {
+                padding: 6px 8px;
+            }
+
+            .group-card-header-title {
+                font-size: 0.78em;
+            }
+
+            .group-card-header-count {
+                font-size: 0.68em;
+            }
+
+            .group-card-content {
+                padding: 6px 8px;
+                gap: 4px;
+            }
+
+            .group-card-avatar {
+                width: 24px;
+                height: 24px;
+                font-size: 0.68em;
+            }
+
+            .group-card-name {
+                font-size: 0.75em;
+            }
+
+            /* Collapsible sections mobile */
+            .collapsible-header {
+                padding: 3px 0;
+            }
+
+            .collapsible-header > div:first-child {
+                font-size: 0.72em !important;
+            }
+
+            .collapsible-body {
+                max-height: 200px;
+            }
+
+            /* Slider mobile */
+            #draw-slider::-webkit-slider-thumb {
+                width: 16px;
+                height: 16px;
+            }
+
+            #draw-slider::-moz-range-thumb {
+                width: 16px;
+                height: 16px;
+            }
+
+            /* Pills mobile */
+            .list-pills {
+                gap: 3px;
+            }
+
+            .pill-button {
+                padding: 3px 7px;
+                font-size: 0.65em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 4px 6px;
+            }
+
+            h1 {
+                font-size: 0.82em;
+            }
+
+            .mode-tab {
+                padding: 3px 8px;
+                font-size: 0.62em;
+            }
+
+            .panel {
+                padding: 8px;
+                border-radius: 8px;
+            }
+
+            .spin-button {
+                padding: 6px 10px;
+                font-size: 0.72em;
+            }
+
+            .wheel-container {
+                width: min(150px, 45vw);
+            }
+
+            .number-display {
+                font-size: 1.6em !important;
+                gap: 6px;
+                margin: 12px 0;
+            }
+
+            .number-item {
+                min-width: 30px;
+                min-height: 30px;
+                font-size: 0.95em;
+                padding: 3px 5px;
             }
 
             .button-group {
                 grid-template-columns: 1fr;
+            }
+
+            .wheel-history-list {
+                max-height: 60px;
+            }
+
+            .collapsible-body {
+                max-height: 150px;
             }
         }
     </style>
