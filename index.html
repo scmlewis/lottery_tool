@@ -100,9 +100,45 @@
             <div class="main-content">
                 <div class="panel list-section">
                     <h2>Number Draw</h2>
-                    <p class="panel-desc">Configure range and rules in Settings ⚙</p>
+                    <p class="panel-desc">Set range and draw rules</p>
 
-                    <button class="spin-button" id="pick-number-btn">Start Draw</button>
+                    <div class="form-group">
+                        <label>Number Range</label>
+                        <div class="form-grid-2col">
+                            <div>
+                                <label class="label-hint">Minimum</label>
+                                <input type="text" id="min-number" value="1" class="mt-xs">
+                            </div>
+                            <div>
+                                <label class="label-hint">Maximum</label>
+                                <input type="text" id="max-number" value="100" class="mt-xs">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label-row">
+                            <span>Times Drawn</span>
+                            <span class="label-value" id="draw-count">1</span>
+                        </label>
+                        <div class="slider-wrap">
+                            <input type="range" id="draw-slider" min="1" max="20" value="1">
+                            <div class="slider-labels">
+                                <span>1</span>
+                                <span id="draw-max-label">20</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="toggle-row">
+                        <label>Allow Repeats</label>
+                        <label class="radio-label mb-0">
+                            <input type="checkbox" id="exclude-drawn" class="checkbox-input">
+                            <span class="label-hint">Exclude drawn numbers</span>
+                        </label>
+                    </div>
+
+                    <button class="spin-button mt-md" id="pick-number-btn">Start Draw</button>
                 </div>
 
                 <div class="panel panel-center">
@@ -210,37 +246,6 @@
                 <div class="settings-row">
                     <label for="remove-after-draw">Remove winner after draw</label>
                     <input type="checkbox" id="remove-after-draw" checked class="checkbox-input">
-                </div>
-            </section>
-
-            <section class="settings-section">
-                <h3>Number Range</h3>
-                <div class="settings-grid-2col">
-                    <div>
-                        <label for="min-number">Minimum</label>
-                        <input type="text" id="min-number" value="1">
-                    </div>
-                    <div>
-                        <label for="max-number">Maximum</label>
-                        <input type="text" id="max-number" value="100">
-                    </div>
-                </div>
-            </section>
-
-            <section class="settings-section">
-                <h3>Draw Rules</h3>
-                <div class="settings-row">
-                    <label>Times Drawn</label>
-                    <span class="settings-value" id="draw-count">1</span>
-                </div>
-                <input type="range" id="draw-slider" min="1" max="20" value="1">
-                <div class="settings-slider-labels">
-                    <span>1</span>
-                    <span id="draw-max-label">20</span>
-                </div>
-                <div class="settings-row">
-                    <label for="exclude-drawn">Exclude drawn numbers</label>
-                    <input type="checkbox" id="exclude-drawn" class="checkbox-input">
                 </div>
             </section>
 

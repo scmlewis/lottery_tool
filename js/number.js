@@ -63,6 +63,12 @@ export function pickNumber() {
         spans.push(span);
     }
 
+    state.els.numberDisplay.classList.remove('count-5', 'count-10', 'count-15', 'count-20');
+    if (drawnThisRound.length >= 20) state.els.numberDisplay.classList.add('count-20');
+    else if (drawnThisRound.length >= 15) state.els.numberDisplay.classList.add('count-15');
+    else if (drawnThisRound.length >= 10) state.els.numberDisplay.classList.add('count-10');
+    else if (drawnThisRound.length >= 5) state.els.numberDisplay.classList.add('count-5');
+
     const rollDuration = 1000;
     let rollStartTime = Date.now();
 
