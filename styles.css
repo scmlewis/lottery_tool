@@ -245,7 +245,9 @@ input[type="text"]::placeholder,input[type="number"]::placeholder,textarea::plac
     .mode-tab{padding:4px 10px;font-size:0.68em}
     .panel{padding:10px}
     .panel h2{font-size:0.82em;margin-bottom:8px}
-    .main-content{grid-template-columns:1fr !important;gap:8px;overflow-y:auto;align-items:start}
+    .main-content{display:flex;flex-direction:column;gap:8px;overflow-y:auto;align-items:stretch}
+    .panel{width:100%;flex-shrink:0;align-self:stretch;min-width:0}
+    .panel-center{align-items:stretch;padding-top:0}
     .list-section{overflow-y:visible}
     .form-group{margin-bottom:6px}
     label{font-size:0.72em;margin-bottom:3px}
@@ -254,7 +256,6 @@ input[type="text"]::placeholder,input[type="number"]::placeholder,textarea::plac
     button{padding:5px 10px;font-size:0.72em}
     .button-group{gap:6px;margin-top:6px}
     .spin-button{padding:7px 12px;font-size:0.78em;margin-bottom:6px}
-    #wheel-mode .main-content{display:flex;flex-direction:column}
     #wheel-mode .wheel-section{padding-bottom:8px}
     .wheel-container{width:min(180px,50vw);margin-bottom:10px}
     .winner-display{padding:8px;min-height:44px}
@@ -263,7 +264,6 @@ input[type="text"]::placeholder,input[type="number"]::placeholder,textarea::plac
     .wheel-history{margin-top:6px}
     .wheel-history-list{max-height:80px;padding:6px}
     .wheel-history-item{padding:4px 6px;font-size:0.72em}
-    #number-mode .main-content{display:flex;flex-direction:column}
     #number-mode .number-display{font-size:1.8em;margin:10px 0;min-height:70px}
     .number-item{min-width:30px;min-height:30px;font-size:0.9em;padding:4px 6px}
     .number-display.count-5 .number-item{font-size:0.8em;min-width:28px;min-height:28px}
@@ -273,7 +273,6 @@ input[type="text"]::placeholder,input[type="number"]::placeholder,textarea::plac
     #number-display-content div:last-child{font-size:0.65em}
     .number-history{gap:4px}
     .history-item{padding:3px 7px;font-size:0.7em}
-    #group-mode .main-content{display:flex;flex-direction:column;gap:8px}
     .lists-container{margin-top:6px;margin-bottom:4px}
     .list-group{padding:6px 8px}
     .items-display{gap:4px}
