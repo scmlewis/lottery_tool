@@ -1,12 +1,9 @@
 import { state } from './state.js';
-import { debounce, parseListText } from './utils.js';
+import { debounce, parseListText, renderItemTags, setupItemDelegation, showToast } from './utils.js';
 import { getStoredLists, saveLists, setCurrentItems, loadSettings, saveSetting } from './storage.js';
 import { initCanvas, drawWheel, spinWheel, updateWheelHistory, clearWheelHistory } from './wheel.js';
 import { pickNumber, updateDrawProgress, updateDrawCount, clearNumberHistory } from './number.js';
-import { addSingleMember, addBatchMembers, clearGroupMembers, startGrouping, shuffleGroup, exportGroupsCSV, computeGroupPreview, renderItemTags, setupItemDelegation } from './group.js';
-import { showToast } from './utils.js';
-
-export { renderItemTags, removeItem };
+import { addSingleMember, addBatchMembers, clearGroupMembers, removeGroupMember, startGrouping, shuffleGroup, exportGroupsCSV, computeGroupPreview } from './group.js';
 
 function cacheDom() {
     const e = state.els;
@@ -26,7 +23,6 @@ function cacheDom() {
     e.numberHistory = document.getElementById('number-history');
     e.groupMembers = document.getElementById('group-members');
     e.groupMemberInput = document.getElementById('group-member-input');
-    e.groupItemsDisplay = document.getElementById('group-items-display');
     e.groupCount = document.getElementById('group-count');
     e.groupNumber = document.getElementById('group-number');
     e.groupPreview = document.getElementById('group-preview');
@@ -66,7 +62,7 @@ function updateListSelector() {
     const clearBtn = document.createElement('button');
     clearBtn.type = 'button';
     clearBtn.className = 'pill-button';
-    clearBtn.textContent = 'All Lists';
+    clearBtn.textContent = 'No List';
     clearBtn.dataset.listName = '';
     fragment.appendChild(clearBtn);
 
@@ -116,6 +112,7 @@ function shuffleList() {
 
 function deleteCurrentList() {
     if (!state.currentListName) { showToast('Select a list first', 'error'); return; }
+    if (!confirm(`Delete "${state.currentListName}" and all its items?`)) return;
     const lists = getStoredLists();
     delete lists[state.currentListName];
     saveLists(lists);
@@ -138,7 +135,7 @@ function removeItem(index) {
 function updateItemsDisplay() {
     const count = state.currentItems.length;
     state.els.currentItemsTitle.textContent = `Current Items (${count})`;
-    renderItemTags('items-display', state.currentItems, removeItem);
+    renderItemTags('items-display', state.currentItems);
 }
 
 function setupPillDelegation() {
@@ -202,10 +199,9 @@ function setupSettingsDrawer() {
         maxNum.addEventListener('change', (e) => { saveSetting('maxNumber', e.target.value); updateDrawProgress(); });
     }
 
-    const drawSlider = document.getElementById('draw-slider');
-    if (drawSlider) {
-        if (settings.drawCount !== undefined) drawSlider.value = settings.drawCount;
-        drawSlider.addEventListener('input', (e) => { saveSetting('drawCount', e.target.value); updateDrawCount(e.target.value); });
+    if (state.els.drawSlider) {
+        if (settings.drawCount !== undefined) state.els.drawSlider.value = settings.drawCount;
+        state.els.drawSlider.addEventListener('input', (e) => { saveSetting('drawCount', e.target.value); updateDrawCount(e.target.value); });
     }
 
     const excludeDrawn = document.getElementById('exclude-drawn');
@@ -267,12 +263,6 @@ function setupEventListeners() {
     document.getElementById('group-member-input')?.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') addSingleMember();
     });
-
-    const drawSlider = document.getElementById('draw-slider');
-    if (drawSlider) {
-        drawSlider.addEventListener('input', (e) => updateDrawCount(e.target.value));
-    }
-
 }
 
 window.addEventListener('load', function () {
@@ -282,9 +272,7 @@ window.addEventListener('load', function () {
     setupPillDelegation();
     setupSettingsDrawer();
     setupItemDelegation('items-display', removeItem);
-    setupItemDelegation('group-items-display', (idx) => {
-        import('./group.js').then(m => m.removeGroupMember(idx));
-    });
+    setupItemDelegation('group-items-display', removeGroupMember);
     updateListSelector();
     drawWheel();
     updateDrawProgress();

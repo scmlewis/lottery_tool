@@ -157,6 +157,8 @@ input[type="text"]::placeholder,input[type="number"]::placeholder,textarea::plac
 .number-history{width:100%;display:flex;flex-wrap:wrap;gap:5px;justify-content:center}
 .history-item{display:flex;gap:5px;align-items:center;padding:4px 9px;background:var(--surface-2);border-radius:5px;color:var(--text-secondary);font-weight:500;font-size:0.78em;border:1px solid var(--border);transition:background 0.15s,border-color 0.15s}
 .history-item:hover{background:var(--surface-3);border-color:var(--border-hover)}
+.history-item-idx{color:var(--text-muted);font-size:0.8em}
+.history-item-nums{color:var(--accent);font-weight:600}
 .wheel-history{width:100%;margin-top:10px;display:flex;flex-direction:column;gap:6px;flex-shrink:0}
 .wheel-history-header{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .wheel-history-list{width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:8px;max-height:120px;overflow-y:auto;display:flex;flex-direction:column;gap:4px}

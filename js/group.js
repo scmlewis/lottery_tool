@@ -1,5 +1,5 @@
 import { state } from './state.js';
-import { parseListText, shuffleArray } from './utils.js';
+import { parseListText, shuffleArray, renderItemTags } from './utils.js';
 
 const CARD_COLORS = ['#34d399', '#60a5fa', '#a78bfa', '#f472b6', '#fbbf24', '#2dd4bf'];
 
@@ -24,6 +24,7 @@ export function addBatchMembers() {
 }
 
 export function clearGroupMembers() {
+    if (!confirm('Remove all group members?')) return;
     state.currentGroupMembers = [];
     updateGroupDisplay();
     state.els.groupMembers.value = '';
@@ -32,7 +33,7 @@ export function clearGroupMembers() {
 
 export function updateGroupDisplay() {
     state.els.groupCount.textContent = state.currentGroupMembers.length;
-    renderItemTags('group-items-display', state.currentGroupMembers, removeGroupMember);
+    renderItemTags('group-items-display', state.currentGroupMembers);
 }
 
 export function removeGroupMember(index) {
@@ -164,35 +165,4 @@ export function shuffleGroup() {
     if (state.currentGroupMembers.length === 0) return;
     shuffleArray(state.currentGroupMembers);
     updateGroupDisplay();
-}
-
-export function renderItemTags(containerId, items, removeCallback) {
-    const display = document.getElementById(containerId);
-    if (!display) return;
-    display.textContent = '';
-    const fragment = document.createDocumentFragment();
-    items.forEach((item, index) => {
-        const tag = document.createElement('div');
-        tag.className = 'item-tag';
-        const span = document.createElement('span');
-        span.textContent = item;
-        const btn = document.createElement('button');
-        btn.textContent = '\u00d7';
-        btn.dataset.index = index;
-        tag.appendChild(span);
-        tag.appendChild(btn);
-        fragment.appendChild(tag);
-    });
-    display.appendChild(fragment);
-}
-
-export function setupItemDelegation(containerId, removeCallback) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-    container.addEventListener('click', function (e) {
-        const btn = e.target.closest('button');
-        if (!btn) return;
-        const idx = parseInt(btn.dataset.index, 10);
-        if (!isNaN(idx)) removeCallback(idx);
-    });
 }

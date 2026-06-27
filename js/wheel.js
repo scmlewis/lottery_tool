@@ -1,5 +1,6 @@
 import { state } from './state.js';
 import { setCurrentItems } from './storage.js';
+import { renderItemTags } from './utils.js';
 
 const CANVAS_SIZE = 320;
 const COLORS = [
@@ -12,8 +13,13 @@ let canvas, ctx;
 export function initCanvas() {
     canvas = document.getElementById('wheel-canvas');
     if (!canvas) return;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = CANVAS_SIZE * dpr;
+    canvas.height = CANVAS_SIZE * dpr;
+    canvas.style.width = CANVAS_SIZE + 'px';
+    canvas.style.height = CANVAS_SIZE + 'px';
     ctx = canvas.getContext('2d');
-    canvas.width = canvas.height = CANVAS_SIZE;
+    ctx.scale(dpr, dpr);
 }
 
 export function drawWheel(rotation = 0) {
@@ -30,10 +36,10 @@ export function drawWheel(rotation = 0) {
         ctx.fillStyle = '#2d3748';
         ctx.fill();
         ctx.fillStyle = '#718096';
-        ctx.font = 'bold 20px Arial';
+        ctx.font = 'bold 18px Outfit, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('Add items to your list to view', centerX, centerY);
+        ctx.fillText('No items loaded', centerX, centerY);
         return;
     }
 
@@ -65,7 +71,7 @@ export function drawWheel(rotation = 0) {
         ctx.textAlign = 'right';
         ctx.textBaseline = 'middle';
         ctx.fillStyle = '#fff';
-        ctx.font = 'bold 13px Arial';
+        ctx.font = 'bold 13px Outfit, sans-serif';
         ctx.fillText(item, radius - 35, 0);
         ctx.restore();
     });
@@ -131,7 +137,7 @@ export function spinWheel() {
                 const itemsDisplay = document.getElementById('items-display');
                 if (itemsDisplay && state.els.currentItemsTitle) {
                     state.els.currentItemsTitle.textContent = `Current Items (${state.currentItems.length})`;
-                    import('./app.js').then(m => m.renderItemTags('items-display', state.currentItems, m.removeItem));
+                    renderItemTags('items-display', state.currentItems);
                 }
                 const ta = state.els.namesTextarea;
                 if (ta) ta.value = state.currentItems.join('\n');
@@ -204,6 +210,7 @@ export function addWheelHistory(name) {
 }
 
 export function clearWheelHistory() {
+    if (!confirm('Clear all wheel draw history?')) return;
     state.wheelHistory = [];
     saveWheelHistory();
     updateWheelHistory();

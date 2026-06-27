@@ -87,10 +87,17 @@ export function pickNumber() {
             updateNumberHistory();
             updateDrawProgress();
 
-            setTimeout(() => {
-                state.els.numberDisplay.classList.remove('animate');
-                if (btn) btn.disabled = false;
-            }, 800);
+            let animDone = 0;
+            const numberDisplay = state.els.numberDisplay;
+            function onAnimEnd() {
+                animDone++;
+                if (animDone >= drawnThisRound.length) {
+                    numberDisplay.classList.remove('animate');
+                    numberDisplay.removeEventListener('animationend', onAnimEnd);
+                    if (btn) btn.disabled = false;
+                }
+            }
+            numberDisplay.addEventListener('animationend', onAnimEnd);
 
             return;
         }
@@ -116,12 +123,10 @@ export function updateNumberHistory() {
         const item = document.createElement('div');
         item.className = 'history-item';
         const idx = document.createElement('span');
-        idx.style.color = '#64748b';
-        idx.style.fontSize = '0.8em';
+        idx.className = 'history-item-idx';
         idx.textContent = `#${index + 1} `;
         const nums = document.createElement('span');
-        nums.style.color = '#6ee7b7';
-        nums.style.fontWeight = '600';
+        nums.className = 'history-item-nums';
         nums.textContent = batch.join(', ');
         item.appendChild(idx);
         item.appendChild(nums);
@@ -162,6 +167,7 @@ export function updateDrawCount(value) {
 }
 
 export function clearNumberHistory() {
+    if (!confirm('Clear all number draw history?')) return;
     state.batchHistory = [];
     state.drawnNumbers.clear();
     restorePlaceholder();
