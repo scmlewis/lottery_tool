@@ -273,8 +273,6 @@ function setupEventListeners() {
         drawSlider.addEventListener('input', (e) => updateDrawCount(e.target.value));
     }
 
-    state.els.minNumber?.addEventListener('change', updateDrawProgress);
-    state.els.maxNumber?.addEventListener('change', updateDrawProgress);
 }
 
 window.addEventListener('load', function () {
