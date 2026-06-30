@@ -1,4 +1,5 @@
 import { state } from './state.js';
+import { showWinnerOverlay, startSpinTick, stopSpinTick, playReveal } from './display.js';
 
 export function pickNumber() {
     const min = parseInt(state.els.minNumber.value) || 0;
@@ -22,6 +23,8 @@ export function pickNumber() {
     state.els.numberDisplay.classList.add('rolling');
     state.els.numberDisplay.classList.add('has-numbers');
 
+    startSpinTick();
+
     const range = max - min + 1;
 
     if (excludeDrawn && state.drawnNumbers.size >= range) {
@@ -37,6 +40,7 @@ export function pickNumber() {
         if (availablePool.length === 0) {
             state.els.numberDisplay.classList.remove('rolling');
             state.els.numberDisplay.classList.remove('has-numbers');
+            stopSpinTick();
             if (btn) btn.disabled = false;
             return;
         }
@@ -76,6 +80,8 @@ export function pickNumber() {
         const elapsed = Date.now() - rollStartTime;
 
         if (elapsed >= rollDuration) {
+            stopSpinTick();
+            playReveal();
             drawnThisRound.forEach((num, i) => {
                 if (spans[i]) spans[i].textContent = num;
             });
@@ -86,6 +92,11 @@ export function pickNumber() {
             if (state.batchHistory.length > 50) state.batchHistory.length = 50;
             updateNumberHistory();
             updateDrawProgress();
+
+            if (state.displayMode) {
+                const numStr = drawnThisRound.join(', ');
+                showWinnerOverlay(numStr, 'Number Draw');
+            }
 
             let animDone = 0;
             const numberDisplay = state.els.numberDisplay;

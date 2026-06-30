@@ -9,5 +9,12 @@ export const state = {
     rollAnimFrameId: null,
     currentGroupMembers: [],
     wheelHistory: JSON.parse(localStorage.getItem('wheelHistory') || '[]'),
-    els: {}
+    els: {},
+    displayMode: false,
+    displaySettings: {
+        soundEnabled: true,
+        confettiEnabled: true,
+        autoAdvanceSeconds: 0,
+    },
+    autoAdvanceRemaining: null,
 };

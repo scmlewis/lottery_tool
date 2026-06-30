@@ -1,5 +1,6 @@
 import { state } from './state.js';
 import { parseListText, shuffleArray, renderItemTags } from './utils.js';
+import { showWinnerOverlay, playReveal } from './display.js';
 
 const CARD_COLORS = ['#34d399', '#60a5fa', '#a78bfa', '#f472b6', '#fbbf24', '#2dd4bf'];
 
@@ -84,6 +85,12 @@ export function startGrouping() {
     }
 
     renderGroupResults(groups);
+    playReveal();
+
+    if (state.displayMode) {
+        const summary = groups.map((g, i) => `Group ${i + 1}: ${g.length} members`).join(' | ');
+        showWinnerOverlay(`${groups.length} Groups Formed`, summary);
+    }
 }
 
 export function renderGroupResults(groups) {

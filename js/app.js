@@ -3,7 +3,8 @@ import { debounce, parseListText, renderItemTags, setupItemDelegation, showToast
 import { getStoredLists, saveLists, setCurrentItems, loadSettings, saveSetting } from './storage.js';
 import { initCanvas, drawWheel, spinWheel, updateWheelHistory, clearWheelHistory } from './wheel.js';
 import { pickNumber, updateDrawProgress, updateDrawCount, clearNumberHistory } from './number.js';
-import { addSingleMember, addBatchMembers, clearGroupMembers, removeGroupMember, startGrouping, shuffleGroup, exportGroupsCSV, computeGroupPreview } from './group.js';
+import { addSingleMember, addBatchMembers, clearGroupMembers, removeGroupMember, startGrouping, shuffleGroup, exportGroupsCSV, computeGroupPreview, renderGroupResults } from './group.js';
+import { toggleDisplayMode, loadDisplaySettings, saveDisplaySettings } from './display.js';
 
 function cacheDom() {
     const e = state.els;
@@ -221,6 +222,23 @@ function setupSettingsDrawer() {
         if (settings.groupNumber !== undefined) groupNum.value = settings.groupNumber;
         groupNum.addEventListener('input', (e) => { saveSetting('groupNumber', e.target.value); computeGroupPreview(); });
     }
+
+    const soundCb = document.getElementById('setting-sound');
+    const confettiCb = document.getElementById('setting-confetti');
+    const autoAdvanceInput = document.getElementById('setting-auto-advance');
+
+    if (soundCb) {
+        soundCb.checked = state.displaySettings.soundEnabled;
+        soundCb.addEventListener('change', (e) => { state.displaySettings.soundEnabled = e.target.checked; saveDisplaySettings(); });
+    }
+    if (confettiCb) {
+        confettiCb.checked = state.displaySettings.confettiEnabled;
+        confettiCb.addEventListener('change', (e) => { state.displaySettings.confettiEnabled = e.target.checked; saveDisplaySettings(); });
+    }
+    if (autoAdvanceInput) {
+        autoAdvanceInput.value = state.displaySettings.autoAdvanceSeconds;
+        autoAdvanceInput.addEventListener('input', (e) => { state.displaySettings.autoAdvanceSeconds = parseInt(e.target.value) || 0; saveDisplaySettings(); });
+    }
 }
 
 function setupEventListeners() {
@@ -240,6 +258,14 @@ function setupEventListeners() {
     document.getElementById('clear-group-btn')?.addEventListener('click', clearGroupMembers);
     document.getElementById('start-grouping-btn')?.addEventListener('click', startGrouping);
     document.getElementById('export-csv-btn')?.addEventListener('click', exportGroupsCSV);
+
+    document.getElementById('display-mode-btn')?.addEventListener('click', toggleDisplayMode);
+
+    document.getElementById('winner-overlay-close')?.addEventListener('click', () => {
+        document.getElementById('winner-overlay')?.classList.remove('active');
+        clearConfetti();
+        clearAutoAdvance();
+    });
 
     document.querySelectorAll('.collapsible-header').forEach(header => {
         header.addEventListener('click', function () {
@@ -268,6 +294,7 @@ function setupEventListeners() {
 window.addEventListener('load', function () {
     cacheDom();
     initCanvas();
+    loadDisplaySettings();
     setupEventListeners();
     setupPillDelegation();
     setupSettingsDrawer();

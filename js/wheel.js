@@ -1,34 +1,53 @@
 import { state } from './state.js';
 import { setCurrentItems } from './storage.js';
 import { renderItemTags } from './utils.js';
+import { showWinnerOverlay, startSpinTick, stopSpinTick } from './display.js';
 
 const CANVAS_SIZE = 320;
+const DISPLAY_CANVAS_SIZE = 640;
 const COLORS = [
     '#34d399', '#60a5fa', '#a78bfa', '#f472b6', '#fbbf24',
     '#2dd4bf', '#818cf8', '#fb923c', '#4ade80', '#f87171'
 ];
 
 let canvas, ctx;
+let currentCanvasSize = CANVAS_SIZE;
 
 export function initCanvas() {
     canvas = document.getElementById('wheel-canvas');
     if (!canvas) return;
+    resizeCanvas();
+}
+
+function resizeCanvas() {
+    if (!canvas) return;
+    const isDisplay = state.displayMode;
+    const size = isDisplay ? DISPLAY_CANVAS_SIZE : CANVAS_SIZE;
+    currentCanvasSize = size;
     const dpr = window.devicePixelRatio || 1;
-    canvas.width = CANVAS_SIZE * dpr;
-    canvas.height = CANVAS_SIZE * dpr;
-    canvas.style.width = CANVAS_SIZE + 'px';
-    canvas.style.height = CANVAS_SIZE + 'px';
+    canvas.width = size * dpr;
+    canvas.height = size * dpr;
+    canvas.style.width = size + 'px';
+    canvas.style.height = size + 'px';
     ctx = canvas.getContext('2d');
     ctx.scale(dpr, dpr);
+    drawWheel(state.wheelRotation);
+}
+
+export function onDisplayModeChange() {
+    resizeCanvas();
 }
 
 export function drawWheel(rotation = 0) {
     if (!ctx) return;
-    const radius = CANVAS_SIZE / 2 - 15;
-    const centerX = CANVAS_SIZE / 2;
-    const centerY = CANVAS_SIZE / 2;
+    const size = currentCanvasSize;
+    const radius = size / 2 - 15;
+    const centerX = size / 2;
+    const centerY = size / 2;
+    const fontSize = size > 400 ? 18 : 13;
+    const labelOffset = size > 400 ? 55 : 35;
 
-    ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+    ctx.clearRect(0, 0, size, size);
 
     if (state.currentItems.length === 0) {
         ctx.beginPath();
@@ -36,7 +55,7 @@ export function drawWheel(rotation = 0) {
         ctx.fillStyle = '#2d3748';
         ctx.fill();
         ctx.fillStyle = '#718096';
-        ctx.font = 'bold 18px Outfit, sans-serif';
+        ctx.font = `bold ${size > 400 ? 24 : 18}px Outfit, sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText('No items loaded', centerX, centerY);
@@ -71,13 +90,13 @@ export function drawWheel(rotation = 0) {
         ctx.textAlign = 'right';
         ctx.textBaseline = 'middle';
         ctx.fillStyle = '#fff';
-        ctx.font = 'bold 13px Outfit, sans-serif';
-        ctx.fillText(item, radius - 35, 0);
+        ctx.font = `bold ${fontSize}px Outfit, sans-serif`;
+        ctx.fillText(item, radius - labelOffset, 0);
         ctx.restore();
     });
 
     ctx.beginPath();
-    ctx.arc(centerX, centerY, 28, 0, 2 * Math.PI);
+    ctx.arc(centerX, centerY, size > 400 ? 38 : 28, 0, 2 * Math.PI);
     ctx.fillStyle = '#0c0f14';
     ctx.fill();
     ctx.strokeStyle = '#6ee7b7';
@@ -112,6 +131,8 @@ export function spinWheel() {
         cancelAnimationFrame(state.animationFrameId);
     }
 
+    startSpinTick();
+
     function animate() {
         const elapsed = Date.now() - startTime;
         const progress = Math.min(elapsed / spinDuration, 1);
@@ -124,6 +145,7 @@ export function spinWheel() {
             state.animationFrameId = requestAnimationFrame(animate);
         } else {
             state.isSpinning = false;
+            stopSpinTick();
             if (spinBtn) spinBtn.disabled = false;
 
             displayWinner(winner);
@@ -154,6 +176,10 @@ export function displayWinner(name) {
     state.els.winnerDisplay.querySelector('.winner-name').textContent = name;
     state.els.winnerDisplay.querySelector('.winner-label').textContent = '\uD83C\uDF89 Winner!';
     state.els.winnerDisplay.classList.add('active');
+
+    if (state.displayMode) {
+        showWinnerOverlay(name, 'Wheel Draw');
+    }
 }
 
 export function saveWheelHistory() {
