@@ -158,8 +158,14 @@ export function exportGroupsCSV() {
         rows.push([title, ...members]);
     });
 
-    const csv = rows.map(r => r.map(cell => '"' + (cell || '') + '"').join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const escapeCSVCell = (cell) => {
+        cell = (cell || '').replace(/"/g, '""');
+        if (/[,"\r\n]/.test(cell)) cell = `"${cell}"`;
+        return cell;
+    };
+    const csv = rows.map(r => r.map(escapeCSVCell).join(',')).join('\n');
+    const bom = new Uint8Array([0xef, 0xbb, 0xbf]);
+    const blob = new Blob([bom, csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -167,6 +173,7 @@ export function exportGroupsCSV() {
     a.click();
     URL.revokeObjectURL(url);
 }
+
 
 export function shuffleGroup() {
     if (state.currentGroupMembers.length === 0) return;

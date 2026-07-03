@@ -1,4 +1,4 @@
-import { state } from './state.js';
+import { state, safeParseJSON } from './state.js';
 import { debounce, parseListText, renderItemTags, setupItemDelegation, showToast } from './utils.js';
 import { getStoredLists, saveLists, setCurrentItems, loadSettings, saveSetting } from './storage.js';
 import { initCanvas, drawWheel, spinWheel, updateWheelHistory, clearWheelHistory } from './wheel.js';
@@ -87,16 +87,21 @@ function selectListByName(name) {
     refreshWheelView();
     updateWheelHistory();
     updateListSelector();
+    loadDrawnNumbers();
 }
 
-function saveCurrentList() {
-    if (!state.currentListName) { showToast('Create or select a list first', 'error'); return; }
-    const items = parseListText(state.els.namesTextarea.value);
-    if (items.length === 0) { showToast('Enter at least one item', 'error'); return; }
-    state.currentItems = items;
-    setCurrentItems(state.currentListName, items);
-    refreshWheelView();
-    showToast('List saved', 'success');
+
+function saveDrawnNumbers() {
+    try {
+        localStorage.setItem('drawnNumbers', JSON.stringify([...state.drawnNumbers]));
+    } catch {
+        // ignore quota errors silently
+    }
+}
+
+function loadDrawnNumbers() {
+    const saved = safeParseJSON(localStorage.getItem('drawnNumbers'), []);
+    state.drawnNumbers = new Set(saved);
 }
 
 function shuffleList() {
@@ -111,14 +116,27 @@ function shuffleList() {
     drawWheel();
 }
 
+function saveCurrentList() {
+    if (!state.currentListName) { showToast('Create or select a list first', 'error'); return; }
+    const items = parseListText(state.els.namesTextarea.value);
+    if (items.length === 0) { showToast('Enter at least one item', 'error'); return; }
+    state.currentItems = items;
+    setCurrentItems(state.currentListName, items);
+    saveDrawnNumbers();
+    refreshWheelView();
+    showToast('List saved', 'success');
+}
+
 function deleteCurrentList() {
     if (!state.currentListName) { showToast('Select a list first', 'error'); return; }
     if (!confirm(`Delete "${state.currentListName}" and all its items?`)) return;
     const lists = getStoredLists();
     delete lists[state.currentListName];
     saveLists(lists);
+    localStorage.removeItem('drawnNumbers');
     state.currentListName = null;
     state.currentItems = [];
+    state.drawnNumbers.clear();
     state.els.namesTextarea.value = '';
     document.getElementById('list-name').value = '';
     refreshWheelView();
@@ -295,6 +313,7 @@ window.addEventListener('load', function () {
     cacheDom();
     initCanvas();
     loadDisplaySettings();
+    loadDrawnNumbers();
     setupEventListeners();
     setupPillDelegation();
     setupSettingsDrawer();

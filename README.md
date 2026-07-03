@@ -64,7 +64,15 @@ Works on all modern browsers:
 ## Files
 
 - `index.html` - Main application file (contains all HTML, CSS, and JavaScript)
-- `wheel_source.js` - Wheel spinning logic
+- `js/state.js` - State management and shared state object
+- `js/storage.js` - LocalStorage persistence for lists and settings
+- `js/wheel.js` - Canvas wheel rendering and spin animation
+- `js/number.js` - Random number draw logic and history
+- `js/group.js` - Group member management and CSV export
+- `js/display.js` - Display mode, fullscreen, audio, confetti, and winner overlay
+- `js/app.js` - Main app wiring, event listeners, and list management
+- `js/utils.js` - Shared utilities (shuffle, parse, toast)
+- `serve.js` - Optional local development server
 - `.nojekyll` - GitHub Pages configuration
 
 ---

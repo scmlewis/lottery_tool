@@ -28,7 +28,9 @@ export function pickNumber() {
     const range = max - min + 1;
 
     if (excludeDrawn && state.drawnNumbers.size >= range) {
+        saveDrawnNumbers();
         state.drawnNumbers.clear();
+        showToast('All numbers drawn — exclusion cleared', 'info');
     }
 
     let availablePool = null;
@@ -92,6 +94,7 @@ export function pickNumber() {
             if (state.batchHistory.length > 50) state.batchHistory.length = 50;
             updateNumberHistory();
             updateDrawProgress();
+            saveDrawnNumbers();
 
             if (state.displayMode) {
                 const numStr = drawnThisRound.join(', ');
@@ -181,16 +184,19 @@ export function clearNumberHistory() {
     if (!confirm('Clear all number draw history?')) return;
     state.batchHistory = [];
     state.drawnNumbers.clear();
+    saveDrawnNumbers();
     restorePlaceholder();
     updateNumberHistory();
     updateDrawProgress();
 }
 
+
 export function restorePlaceholder() {
-    state.els.numberDisplay.classList.remove('has-numbers');
-    state.els.numberDisplay.classList.remove('rolling');
-    state.els.numberDisplay.classList.remove('animate');
+    state.els.numberDisplay.classList.remove('has-numbers', 'rolling', 'animate');
     state.els.numberDisplay.textContent = '';
+    const existing = document.getElementById('number-display-content');
+    if (existing) existing.remove();
+
     const content = document.createElement('div');
     content.id = 'number-display-content';
     content.className = 'text-center';
@@ -210,3 +216,4 @@ export function restorePlaceholder() {
     content.appendChild(text);
     state.els.numberDisplay.appendChild(content);
 }
+

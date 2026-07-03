@@ -8,7 +8,7 @@ export const state = {
     drawnNumbers: new Set(),
     rollAnimFrameId: null,
     currentGroupMembers: [],
-    wheelHistory: JSON.parse(localStorage.getItem('wheelHistory') || '[]'),
+    wheelHistory: safeParseJSON(localStorage.getItem('wheelHistory'), []),
     els: {},
     displayMode: false,
     displaySettings: {
@@ -18,3 +18,12 @@ export const state = {
     },
     autoAdvanceRemaining: null,
 };
+
+// Safe JSON parse that falls back to defaultValue on corrupt data.
+export function safeParseJSON(raw, defaultValue) {
+    try {
+        return raw ? JSON.parse(raw) : defaultValue;
+    } catch {
+        return defaultValue;
+    }
+}
