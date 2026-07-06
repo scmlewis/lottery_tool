@@ -1123,17 +1123,39 @@ input[type="range"]::-moz-range-thumb {
 .number-placeholder {
     text-align: center;
     color: var(--muted);
+    padding: 20px;
+    opacity: 0.6;
+    transition: opacity 0.3s;
 }
 
 .number-placeholder-emoji {
     font-size: 48px;
-    margin-bottom: 12px;
-    opacity: 0.5;
+    margin-bottom: 16px;
+    filter: grayscale(0.3);
 }
 
 .number-placeholder-text {
     font-size: 14px;
     line-height: 1.6;
+    color: var(--muted);
+    opacity: 0.7;
+}
+
+/* ═══════════════════════════════════════
+   NUMBER MODE — DRAW BUTTON
+   ═══════════════════════════════════════ */
+.number-draw-btn {
+    margin-top: 16px;
+    align-self: center;
+    width: 100%;
+    max-width: 320px;
+}
+
+/* Hide placeholder when numbers are drawn */
+.number-display.has-numbers .number-placeholder,
+.number-display.rolling .number-placeholder,
+.number-display.animate .number-placeholder {
+    display: none;
 }
 
 /* ═══════════════════════════════════════
@@ -2176,7 +2198,8 @@ body.display-mode .placeholder-text {
 }
 
 body.display-mode #number-mode .spin-button,
-body.display-mode #number-mode .spin-btn {
+body.display-mode #number-mode .spin-btn,
+body.display-mode #number-mode .number-draw-btn {
     position: fixed;
     bottom: 5vh;
     left: 50%;
@@ -2187,6 +2210,7 @@ body.display-mode #number-mode .spin-btn {
     border-radius: 14px;
     z-index: 10;
     letter-spacing: 0.03em;
+    box-shadow: 0 4px 24px var(--accent-glow);
 }
 
 body.display-mode .number-history {
@@ -2294,6 +2318,7 @@ body.display-mode #export-csv-btn {
     body.display-mode .spin-btn,
     body.display-mode #number-mode .spin-button,
     body.display-mode #number-mode .spin-btn,
+    body.display-mode #number-mode .number-draw-btn,
     body.display-mode #start-grouping-btn {
         padding: 14px 36px;
         font-size: 1.15em;

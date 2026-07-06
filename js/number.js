@@ -212,7 +212,7 @@ export function restorePlaceholder() {
     emoji.textContent = '\uD83C\uDFB0';
     const text = document.createElement('div');
     text.className = 'number-placeholder-text';
-    text.innerHTML = 'Set range & quantity<br>Click start to draw';
+    text.innerHTML = 'Set range and quantity,<br>then tap to draw';
     placeholder.appendChild(emoji);
     placeholder.appendChild(text);
     content.appendChild(placeholder);
