@@ -79,7 +79,7 @@ export function pickNumber() {
     let rollStartTime = Date.now();
 
     function reEnableButton() {
-        state.els.numberDisplay.classList.remove('animate');
+        state.els.numberDisplay.classList.remove('rolling');
         const currentBtn = document.getElementById('pick-number-btn');
         if (currentBtn) currentBtn.disabled = false;
     }
@@ -99,7 +99,6 @@ export function pickNumber() {
                 }
             });
             state.els.numberDisplay.classList.remove('rolling');
-            state.els.numberDisplay.classList.add('animate');
 
             state.batchHistory.unshift(drawnThisRound);
             if (state.batchHistory.length > 50) state.batchHistory.length = 50;
@@ -112,19 +111,9 @@ export function pickNumber() {
                 showWinnerOverlay(numStr, 'Number Draw');
             }
 
-            let animDone = 0;
-            const numberDisplay = state.els.numberDisplay;
-            function onAnimEnd() {
-                animDone++;
-                if (animDone >= drawnThisRound.length) {
-                    numberDisplay.removeEventListener('animationend', onAnimEnd);
-                    reEnableButton();
-                }
-            }
-            numberDisplay.addEventListener('animationend', onAnimEnd);
-
-            // Safety fallback: re-enable button even if animationend never fires
-            setTimeout(reEnableButton, 2000 + drawnThisRound.length * 60);
+            // Re-enable button after all reveal animations finish
+            const totalDuration = 500 + drawnThisRound.length * 60;
+            setTimeout(reEnableButton, totalDuration);
 
             return;
         }
