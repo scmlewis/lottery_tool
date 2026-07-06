@@ -6,11 +6,11 @@ export function pickNumber() {
     const max = parseInt(state.els.maxNumber.value) || 100;
     const excludeDrawn = state.els.excludeDrawn.checked;
     const timesToDraw = parseInt(state.els.drawSlider.value) || 1;
-    const btn = document.querySelector('#number-mode .spin-btn');
 
     if (min >= max) return;
     if (timesToDraw <= 0) return;
 
+    const btn = document.getElementById('pick-number-btn');
     if (btn) btn.disabled = true;
 
     state.els.numberDisplay.querySelectorAll('.number-item').forEach(s => s.remove());
@@ -78,6 +78,12 @@ export function pickNumber() {
     const rollDuration = 1000;
     let rollStartTime = Date.now();
 
+    function reEnableButton() {
+        state.els.numberDisplay.classList.remove('animate');
+        const currentBtn = document.getElementById('pick-number-btn');
+        if (currentBtn) currentBtn.disabled = false;
+    }
+
     function rollTick() {
         const elapsed = Date.now() - rollStartTime;
 
@@ -111,12 +117,14 @@ export function pickNumber() {
             function onAnimEnd() {
                 animDone++;
                 if (animDone >= drawnThisRound.length) {
-                    numberDisplay.classList.remove('animate');
                     numberDisplay.removeEventListener('animationend', onAnimEnd);
-                    if (btn) btn.disabled = false;
+                    reEnableButton();
                 }
             }
             numberDisplay.addEventListener('animationend', onAnimEnd);
+
+            // Safety fallback: re-enable button even if animationend never fires
+            setTimeout(reEnableButton, 2000 + drawnThisRound.length * 60);
 
             return;
         }
