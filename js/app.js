@@ -285,7 +285,7 @@ function setupEventListeners() {
         clearAutoAdvance();
     });
 
-    document.querySelectorAll('.collapsible-header').forEach(header => {
+    document.querySelectorAll('.collapsible-header, .collapse-header').forEach(header => {
         header.addEventListener('click', function () {
             this.classList.toggle('collapsed');
             const body = this.nextElementSibling;

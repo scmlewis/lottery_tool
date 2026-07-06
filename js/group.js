@@ -2,7 +2,16 @@ import { state } from './state.js';
 import { parseListText, shuffleArray, renderItemTags } from './utils.js';
 import { showWinnerOverlay, playReveal } from './display.js';
 
-const CARD_COLORS = ['#34d399', '#60a5fa', '#a78bfa', '#f472b6', '#fbbf24', '#2dd4bf'];
+const CARD_TINTS = [
+    'rgba(110,231,183,0.18)', 'rgba(96,165,250,0.18)', 'rgba(167,139,250,0.18)',
+    'rgba(244,114,182,0.18)', 'rgba(251,191,36,0.18)', 'rgba(45,212,191,0.18)',
+    'rgba(129,140,248,0.18)', 'rgba(251,146,60,0.18)', 'rgba(74,222,128,0.18)',
+    'rgba(248,113,113,0.18)'
+];
+const CARD_TEXT = [
+    '#6ee7b7', '#60a5fa', '#a78bfa', '#f472b6', '#fbbf24', '#2dd4bf',
+    '#818cf8', '#fb923c', '#4ade80', '#f87171'
+];
 
 export function addSingleMember() {
     const v = state.els.groupMemberInput.value.trim();
@@ -97,21 +106,31 @@ export function renderGroupResults(groups) {
     state.els.groupResults.textContent = '';
     const fragment = document.createDocumentFragment();
 
+    // Remove empty state if present
+    const emptyEl = document.getElementById('empty-state');
+    if (emptyEl) emptyEl.remove();
+
     groups.forEach((g, i) => {
         const card = document.createElement('div');
         card.className = 'group-card';
+        card.style.animationDelay = `${i * 80}ms`;
+
+        const tint = CARD_TINTS[i % CARD_TINTS.length];
+        const textColor = CARD_TEXT[i % CARD_TEXT.length];
 
         const header = document.createElement('div');
         header.className = 'group-card-header';
-        header.style.background = `linear-gradient(to right, ${CARD_COLORS[i % CARD_COLORS.length]}, ${CARD_COLORS[(i + 1) % CARD_COLORS.length]})`;
+        header.style.background = tint;
+        header.style.borderBottom = '1px solid rgba(255,255,255,0.06)';
 
         const titleDiv = document.createElement('div');
         titleDiv.className = 'group-card-header-title';
+        titleDiv.style.color = textColor;
         titleDiv.textContent = `Group ${i + 1}`;
 
         const countDiv = document.createElement('div');
         countDiv.className = 'group-card-header-count';
-        countDiv.textContent = `${g.length} members`;
+        countDiv.textContent = `${g.length} member${g.length !== 1 ? 's' : ''}`;
 
         header.appendChild(titleDiv);
         header.appendChild(countDiv);
@@ -126,7 +145,7 @@ export function renderGroupResults(groups) {
 
             const avatar = document.createElement('div');
             avatar.className = 'group-card-avatar';
-            avatar.style.background = CARD_COLORS[idx % CARD_COLORS.length];
+            avatar.style.background = CARD_TEXT[idx % CARD_TEXT.length];
             avatar.textContent = m.charAt(0).toUpperCase();
 
             const nameDiv = document.createElement('div');

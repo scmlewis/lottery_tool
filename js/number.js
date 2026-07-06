@@ -6,7 +6,7 @@ export function pickNumber() {
     const max = parseInt(state.els.maxNumber.value) || 100;
     const excludeDrawn = state.els.excludeDrawn.checked;
     const timesToDraw = parseInt(state.els.drawSlider.value) || 1;
-    const btn = document.querySelector('#number-mode .spin-button');
+    const btn = document.querySelector('#number-mode .spin-btn');
 
     if (min >= max) return;
     if (timesToDraw <= 0) return;
@@ -64,7 +64,7 @@ export function pickNumber() {
     const spans = [];
     for (let i = 0; i < drawnThisRound.length; i++) {
         const span = document.createElement('span');
-        span.className = 'number-item';
+        span.className = 'number-item rolling';
         state.els.numberDisplay.appendChild(span);
         spans.push(span);
     }
@@ -85,7 +85,12 @@ export function pickNumber() {
             stopSpinTick();
             playReveal();
             drawnThisRound.forEach((num, i) => {
-                if (spans[i]) spans[i].textContent = num;
+                if (spans[i]) {
+                    spans[i].textContent = num;
+                    spans[i].classList.remove('rolling');
+                    spans[i].classList.add('revealed');
+                    spans[i].style.animationDelay = `${i * 60}ms`;
+                }
             });
             state.els.numberDisplay.classList.remove('rolling');
             state.els.numberDisplay.classList.add('animate');
@@ -135,12 +140,12 @@ export function updateNumberHistory() {
     for (let index = 0; index < limit; index++) {
         const batch = state.batchHistory[index];
         const item = document.createElement('div');
-        item.className = 'history-item';
+        item.className = 'history-chip';
         const idx = document.createElement('span');
-        idx.className = 'history-item-idx';
-        idx.textContent = `#${index + 1} `;
+        idx.className = 'history-idx';
+        idx.textContent = `#${index + 1}`;
         const nums = document.createElement('span');
-        nums.className = 'history-item-nums';
+        nums.className = 'history-nums';
         nums.textContent = batch.join(', ');
         item.appendChild(idx);
         item.appendChild(nums);
@@ -200,20 +205,17 @@ export function restorePlaceholder() {
     const content = document.createElement('div');
     content.id = 'number-display-content';
     content.className = 'text-center';
+    const placeholder = document.createElement('div');
+    placeholder.className = 'number-placeholder';
     const emoji = document.createElement('div');
-    emoji.className = 'placeholder-emoji';
+    emoji.className = 'number-placeholder-emoji';
     emoji.textContent = '\uD83C\uDFB0';
     const text = document.createElement('div');
-    text.className = 'placeholder-text';
-    const line1 = document.createElement('div');
-    line1.textContent = 'Set range & quantity';
-    const line2 = document.createElement('div');
-    line2.className = 'mt-xs';
-    line2.textContent = 'Click start to draw';
-    text.appendChild(line1);
-    text.appendChild(line2);
-    content.appendChild(emoji);
-    content.appendChild(text);
+    text.className = 'number-placeholder-text';
+    text.innerHTML = 'Set range & quantity<br>Click start to draw';
+    placeholder.appendChild(emoji);
+    placeholder.appendChild(text);
+    content.appendChild(placeholder);
     state.els.numberDisplay.appendChild(content);
 }
 

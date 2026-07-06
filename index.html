@@ -3,22 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lucky Draw Tool</title>
+    <title>Lucky Draw</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- Topbar -->
+    <header class="topbar" role="banner">
+        <div class="topbar-brand">
+            <div class="topbar-icon" aria-hidden="true">🎲</div>
+            <h1>Lucky Draw</h1>
+        </div>
+
+        <div class="mode-tabs" role="tablist" aria-label="Mode selection">
+            <button class="mode-tab active" data-mode="wheel" role="tab" aria-selected="true">🎡 Wheel</button>
+            <button class="mode-tab" data-mode="number" role="tab" aria-selected="false"># Number</button>
+            <button class="mode-tab" data-mode="group" role="tab" aria-selected="false">👥 Group</button>
+        </div>
+
+        <div class="topbar-right">
+            <button id="display-mode-btn" class="icon-btn display-btn" aria-label="Display Mode" title="Enter Display Mode (Fullscreen)">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+                </svg>
+                <span class="btn-label">Display</span>
+            </button>
+            <button id="settings-toggle" class="icon-btn" aria-label="Settings" title="Settings">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
     <div class="container">
-        <header>
-            <h1>🎲 Lucky Draw</h1>
-            <div class="mode-tabs">
-                <button class="mode-tab active" data-mode="wheel">🎡 Wheel</button>
-                <button class="mode-tab" data-mode="number"># Number</button>
-                <button class="mode-tab" data-mode="group">👥 Group</button>
-            </div>
-        </header>
 
         <!-- Wheel Mode -->
         <div id="wheel-mode" class="mode-content active">
@@ -28,12 +49,13 @@
                     <div class="wheel-container">
                         <canvas id="wheel-canvas"></canvas>
                         <div class="wheel-pointer"></div>
+                        <div class="wheel-glow" id="wheel-glow"></div>
                     </div>
                     <button class="spin-button" id="spin-button">Start Draw</button>
 
                     <div class="winner-display" id="winner-display">
-                        <div class="winner-label">Start your first draw</div>
-                        <div class="winner-name">-</div>
+                        <div class="winner-label">Ready to draw</div>
+                        <div class="winner-name">—</div>
                     </div>
 
                     <div class="wheel-history" id="wheel-history-container">
@@ -54,41 +76,54 @@
                     <h2>List Management</h2>
 
                     <div class="form-group">
-                        <label for="list-name">List Name</label>
+                        <label class="form-label" for="list-name">List Name</label>
                         <div class="input-row">
-                            <input type="text" id="list-name" placeholder="e.g., Team Members">
-                            <button class="btn-primary" id="create-list-btn">Create</button>
+                            <input type="text" id="list-name" placeholder="e.g. Team Members">
+                            <button class="btn btn-primary" id="create-list-btn">Create</button>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="saved-lists">Select List</label>
-                        <div id="saved-lists-pills" class="list-pills"></div>
+                        <label class="form-label">Select List</label>
+                        <div id="saved-lists-pills" class="pills"></div>
                     </div>
 
                     <div class="form-group">
-                        <label for="names-textarea">Edit Items (comma or line-separated)</label>
-                        <textarea id="names-textarea" placeholder="Enter names separated by comma or new line" style="min-height:50px;"></textarea>
+                        <label class="form-label" for="names-textarea">Edit Items (comma or line-separated)</label>
+                        <textarea id="names-textarea" placeholder="Alice, Bob, Charlie" style="min-height:60px;"></textarea>
                     </div>
 
-                    <div class="button-group">
-                        <button class="btn-primary" id="save-list-btn">Save Items</button>
-                        <button class="btn-secondary" id="shuffle-list-btn">Shuffle</button>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" id="save-list-btn">Save Items</button>
+                        <button class="btn btn-secondary" id="shuffle-list-btn">Shuffle</button>
                     </div>
 
-                    <div class="button-group button-group-single">
-                        <button class="btn-danger" id="delete-list-btn">Delete List</button>
+                    <div class="btn-group">
+                        <button class="btn btn-danger" id="delete-list-btn" style="grid-column: 1 / -1;">Delete List</button>
                     </div>
 
-                    <div class="lists-container">
-                        <div class="list-group">
-                            <div class="collapsible-header">
-                                <div class="list-group-title mb-0" id="current-items-title">Current Items (0)</div>
-                                <span class="collapsible-arrow">▼</span>
+                    <!-- Current Items -->
+                    <div class="items-section">
+                        <div class="collapse-header" data-collapse="items">
+                            <span class="collapse-title" id="current-items-title">Current Items (0)</span>
+                            <span class="collapse-arrow">▼</span>
+                        </div>
+                        <div class="collapse-body" id="items-body">
+                            <div class="tags" id="items-display" style="margin-top: 8px;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Draw History -->
+                    <div class="history-section">
+                        <div class="collapse-header" data-collapse="history">
+                            <span class="collapse-title">Draw History</span>
+                            <div class="history-header">
+                                <button class="btn btn-secondary btn-sm" id="clear-wheel-history-btn">Clear</button>
+                                <span class="collapse-arrow">▼</span>
                             </div>
-                            <div class="collapsible-body">
-                                <div class="items-display" id="items-display"></div>
-                            </div>
+                        </div>
+                        <div class="collapse-body" id="history-body">
+                            <div class="history-list" id="wheel-history-list"></div>
                         </div>
                     </div>
                 </div>
@@ -99,73 +134,59 @@
         <div id="number-mode" class="mode-content">
             <div class="main-content">
                 <div class="panel list-section">
-                    <h2>Number Draw</h2>
-                    <p class="panel-desc">Set range and draw rules</p>
+                    <h2>Draw Settings</h2>
 
                     <div class="form-group">
                         <label>Number Range</label>
-                        <div class="form-grid-2col">
+                        <div class="form-row">
                             <div>
-                                <label class="label-hint">Minimum</label>
+                                <div class="form-hint">Minimum</div>
                                 <input type="text" id="min-number" value="1" class="mt-xs">
                             </div>
                             <div>
-                                <label class="label-hint">Maximum</label>
+                                <div class="form-hint">Maximum</div>
                                 <input type="text" id="max-number" value="100" class="mt-xs">
                             </div>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="label-row">
-                            <span>Times Drawn</span>
-                            <span class="label-value" id="draw-count">1</span>
-                        </label>
-                        <div class="slider-wrap">
-                            <input type="range" id="draw-slider" min="1" max="20" value="1">
-                            <div class="slider-labels">
-                                <span>1</span>
-                                <span id="draw-max-label">20</span>
-                            </div>
+                        <div class="slider-row">
+                            <span class="form-label" style="margin:0;">Times Drawn</span>
+                            <span class="slider-val" id="draw-count">1</span>
+                        </div>
+                        <input type="range" id="draw-slider" min="1" max="20" value="1">
+                        <div class="slider-labels">
+                            <span>1</span>
+                            <span id="draw-max-label">20</span>
                         </div>
                     </div>
 
                     <div class="toggle-row">
-                        <span class="label-hint">Allow Repeats</span>
-                        <label class="radio-label mb-0">
-                            <input type="checkbox" id="exclude-drawn" class="checkbox-input">
-                            <span>Prevent repeats</span>
-                        </label>
+                        <span class="toggle-label">Allow Repeats</span>
+                        <input type="checkbox" id="exclude-drawn" class="checkbox-input">
                     </div>
+                    <div class="form-hint" style="margin-top:4px;">Prevent previously drawn numbers</div>
 
-                    <button class="spin-button mt-md" id="pick-number-btn">Start Draw</button>
+                    <button class="spin-btn mt-md" id="pick-number-btn">Start Draw</button>
                 </div>
 
                 <div class="panel panel-center">
-                    <div class="text-center">
-                        <p class="section-label">Current Number</p>
-                        <div class="number-display" id="number-display">
-                            <div id="number-display-content" class="text-center">
-                                <div class="placeholder-emoji">🎯</div>
-                                <div class="placeholder-text">
-                                    <div>Set range & quantity</div>
-                                    <div class="mt-xs">Click start to draw</div>
-                                </div>
+                    <div class="number-display" id="number-display">
+                        <div id="number-display-content" class="text-center">
+                            <div class="number-placeholder">
+                                <div class="number-placeholder-emoji">🎯</div>
+                                <div class="number-placeholder-text">Set range & quantity<br>Click start to draw</div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="mt-md" style="width:100%;">
-                        <div class="collapsible-header">
-                            <h3 class="section-title">Draw Record</h3>
-                            <div class="inline-flex">
-                                <button class="btn-secondary btn-xs" id="clear-history-btn">Clear</button>
-                                <span class="collapsible-arrow">▼</span>
-                            </div>
+                    <div class="history-section" style="width:100%;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <span class="history-section-label">Draw Record</span>
+                            <button class="btn-secondary btn-sm" id="clear-history-btn">Clear</button>
                         </div>
-                        <div class="collapsible-body">
-                            <div class="number-history mt-sm" id="number-history"></div>
-                        </div>
+                        <div class="history-grid" id="number-history"></div>
                     </div>
                 </div>
             </div>
@@ -175,72 +196,79 @@
         <div id="group-mode" class="mode-content">
             <div class="main-content main-content-group">
                 <div class="panel list-section">
-                    <h2>Group Members</h2>
-
-                    <div class="form-group">
-                        <label class="label-row">
-                            <span>Members (<span id="group-count">0</span>)</span>
-                        </label>
-                        <div class="preview-box" id="group-preview">Add members to see preview</div>
+                    <div class="panel-header">
+                        <h2 class="panel-title">Members</h2>
+                        <span class="count-badge" id="group-count">0</span>
                     </div>
 
                     <div class="form-group">
+                        <label class="form-label" for="group-member-input">Add Member</label>
                         <div class="input-row">
                             <input type="text" id="group-member-input" placeholder="Enter name">
-                            <button class="btn-primary" id="add-member-btn">+</button>
+                            <button class="add-btn" id="add-member-btn">+</button>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="group-members">Batch Add</label>
-                        <textarea id="group-members" placeholder="Paste names separated by comma or newline" style="min-height:50px;"></textarea>
-                        <div class="button-row">
-                            <button class="btn-primary" id="add-batch-btn">Add Batch</button>
+                        <label class="form-label" for="group-members">Batch Add</label>
+                        <textarea id="group-members" placeholder="Paste names, comma or newline separated" style="min-height:56px;"></textarea>
+                        <div class="btn-group">
+                            <button class="btn-secondary" id="add-batch-btn">Add Batch</button>
                             <button class="btn-secondary" id="shuffle-group-btn">Shuffle</button>
                             <button class="btn-secondary" id="clear-group-btn">Clear</button>
                         </div>
                     </div>
 
-                    <div class="lists-container mb-sm">
-                        <div class="list-group">
-                            <div class="collapsible-header">
-                                <div class="list-group-title mb-0">Members</div>
-                                <span class="collapsible-arrow">▼</span>
-                            </div>
-                            <div class="collapsible-body">
-                                <div class="items-display scrollable" id="group-items-display"></div>
-                            </div>
+                    <div class="tags-container">
+                        <label class="form-label" id="members-label">Current Members</label>
+                        <div class="tags scrollable" id="group-items-display" role="list" aria-labelledby="members-label"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Grouping Strategy</label>
+                        <div class="radio-group" id="mode-radios" role="radiogroup" aria-label="Grouping strategy">
+                            <label class="radio-opt selected" data-mode="size">
+                                <input type="radio" name="group-mode" value="size" checked> Each group has N members
+                            </label>
+                            <label class="radio-opt" data-mode="count">
+                                <input type="radio" name="group-mode" value="count"> Divide into K groups
+                            </label>
                         </div>
                     </div>
 
-                    <button class="spin-button btn-full mb-sm" id="start-grouping-btn">Start Grouping</button>
+                    <div class="form-group">
+                        <label class="form-label" for="group-number">Number</label>
+                        <input type="number" id="group-number" value="3" min="1" max="50" style="width:80px;">
+                    </div>
+
+                    <div class="preview-box" id="group-preview" role="status" aria-live="polite">Add members to see preview</div>
+
+                    <button class="spin-btn btn-full mb-sm" id="start-grouping-btn">Start Grouping</button>
                     <button class="btn-secondary btn-full" id="export-csv-btn">Export CSV</button>
                 </div>
 
                 <div class="panel" style="display:flex;flex-direction:column;">
                     <h2>Group Results</h2>
-                    <div id="group-results" class="results-grid"></div>
+                    <div id="group-results" class="results-grid">
+                        <div class="empty-state" id="empty-state">
+                            <div class="empty-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="9" cy="7" r="4"/>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                </svg>
+                            </div>
+                            <div class="empty-title">No groups yet</div>
+                            <div class="empty-desc">Add members and configure your grouping strategy, then click Start Grouping.</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Settings Drawer -->
-    <div class="top-actions">
-        <button id="display-mode-btn" class="action-btn display-btn" aria-label="Display Mode" title="Enter Display Mode (Fullscreen)">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
-            </svg>
-            <span class="btn-label">Display</span>
-        </button>
-        <button id="settings-toggle" class="action-btn" aria-label="Settings">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="3"></circle>
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-            </svg>
-        </button>
-    </div>
-
     <div id="settings-overlay" class="settings-overlay"></div>
 
     <aside id="settings-drawer" class="settings-drawer">

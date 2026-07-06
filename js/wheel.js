@@ -50,13 +50,13 @@ export function drawWheel(rotation = 0) {
     if (state.currentItems.length === 0) {
         ctx.beginPath();
         ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-        ctx.fillStyle = '#2d3748';
+        ctx.fillStyle = 'rgba(255,255,255,0.04)';
         ctx.fill();
-        ctx.fillStyle = '#718096';
+        ctx.fillStyle = '#6b7a99';
         ctx.font = `bold ${size > 400 ? 24 : 18}px Outfit, sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('No items loaded', centerX, centerY);
+        ctx.fillText('Add items to spin', centerX, centerY);
         return;
     }
 
@@ -78,8 +78,8 @@ export function drawWheel(rotation = 0) {
         ctx.closePath();
         ctx.fillStyle = COLORS[index % COLORS.length];
         ctx.fill();
-        ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 3;
+        ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+        ctx.lineWidth = 2;
         ctx.stroke();
 
         ctx.save();
@@ -89,17 +89,28 @@ export function drawWheel(rotation = 0) {
         ctx.textBaseline = 'middle';
         ctx.fillStyle = '#fff';
         ctx.font = `bold ${fontSize}px Outfit, sans-serif`;
+        ctx.shadowColor = 'rgba(0,0,0,0.4)';
+        ctx.shadowBlur = 4;
         ctx.fillText(item, radius - labelOffset, 0);
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
         ctx.restore();
     });
 
     ctx.beginPath();
     ctx.arc(centerX, centerY, size > 400 ? 38 : 28, 0, 2 * Math.PI);
-    ctx.fillStyle = '#0c0f14';
+    ctx.fillStyle = '#0a0e17';
     ctx.fill();
     ctx.strokeStyle = '#6ee7b7';
     ctx.lineWidth = 3;
     ctx.stroke();
+
+    // Center dot glow
+    const grad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, size > 400 ? 38 : 28);
+    grad.addColorStop(0, 'rgba(110,231,183,0.15)');
+    grad.addColorStop(1, 'transparent');
+    ctx.fillStyle = grad;
+    ctx.fill();
 
     ctx.restore();
 }
@@ -113,6 +124,9 @@ export function spinWheel() {
     if (spinBtn) spinBtn.disabled = true;
 
     state.els.winnerDisplay.classList.remove('active');
+
+    const wheelGlow = document.getElementById('wheel-glow');
+    if (wheelGlow) wheelGlow.classList.add('active');
 
     const winnerIndex = Math.floor(Math.random() * state.currentItems.length);
     const winner = state.currentItems[winnerIndex];
@@ -145,6 +159,9 @@ export function spinWheel() {
             state.isSpinning = false;
             stopSpinTick();
             if (spinBtn) spinBtn.disabled = false;
+
+            const wheelGlow = document.getElementById('wheel-glow');
+            if (wheelGlow) wheelGlow.classList.remove('active');
 
             displayWinner(winner);
             addWheelHistory(winner);
