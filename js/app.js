@@ -300,6 +300,10 @@ function setupEventListeners() {
             this.classList.add('active');
             document.querySelectorAll('.mode-content').forEach(content => content.classList.remove('active'));
             document.getElementById(mode + '-mode').classList.add('active');
+            document.body.classList.remove('wheel-mode', 'number-mode', 'group-mode');
+            if (mode === 'wheel' || mode === 'number' || mode === 'group') {
+                document.body.classList.add(mode + '-mode');
+            }
             if (mode === 'wheel') setTimeout(() => drawWheel(), 100);
         });
     });
@@ -323,6 +327,7 @@ window.addEventListener('load', function () {
     drawWheel();
     updateDrawProgress();
     computeGroupPreview();
+    document.body.classList.add('wheel-mode');
 });
 
 window.addEventListener('resize', debounce(function () {

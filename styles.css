@@ -46,7 +46,7 @@ body {
     font-variant-numeric: tabular-nums;
 }
 
-/* Ambient gradient mesh */
+/* Ambient gradient mesh — default (wheel mode) */
 body::before {
     content: '';
     position: fixed;
@@ -58,15 +58,17 @@ body::before {
     z-index: 0;
 }
 
-/* Noise texture overlay */
-body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    opacity: 0.3;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 0;
+/* Per-mode gradient overrides */
+body.number-mode::before {
+    background:
+        radial-gradient(ellipse 70% 50% at 30% 10%, rgba(129, 140, 248, 0.05) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 70% 80%, rgba(110, 231, 183, 0.04) 0%, transparent 50%);
+}
+
+body.group-mode::before {
+    background:
+        radial-gradient(ellipse 70% 50% at 40% 10%, rgba(251, 191, 36, 0.04) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 60% 80%, rgba(129, 140, 248, 0.04) 0%, transparent 50%);
 }
 
 /* ═══════════════════════════════════════
@@ -232,10 +234,14 @@ body::after {
 }
 
 #wheel-mode .main-content {
-    grid-template-columns: 0.6fr 1.4fr;
+    grid-template-columns: 1fr 1fr;
 }
 
 #number-mode .main-content {
+    grid-template-columns: 0.4fr 1.6fr;
+}
+
+#group-mode .main-content {
     grid-template-columns: 0.4fr 1.6fr;
 }
 
@@ -266,14 +272,25 @@ body::after {
     content: '';
     position: absolute;
     inset: 0;
-    border-radius: var(--radius-xl);
+    border-radius: inherit;
     padding: 1px;
-    background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 50%, rgba(255,255,255,0.02) 100%);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, transparent 50%, rgba(255, 255, 255, 0.02) 100%);
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     pointer-events: none;
     z-index: 1;
+}
+
+/* Group mode — simpler inset border */
+#group-mode .panel::before {
+    inset: 1px;
+    padding: 0;
+    background: none;
+    -webkit-mask: none;
+    -webkit-mask-composite: unset;
+    mask-composite: unset;
+    border: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .panel:hover {
@@ -399,6 +416,87 @@ body::after {
     cursor: not-allowed;
 }
 
+/* Number mode — secondary (indigo) spin button */
+#number-mode .spin-button,
+#number-mode .spin-btn {
+    background: linear-gradient(135deg, var(--secondary), #6366f1);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(129, 140, 248, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+#number-mode .spin-button:hover:not(:disabled),
+#number-mode .spin-btn:hover:not(:disabled) {
+    box-shadow: 0 6px 28px rgba(129, 140, 248, 0.4);
+}
+
+/* Group mode — solid accent action button */
+#group-mode .action-btn {
+    background: var(--accent);
+    color: var(--bg);
+    box-shadow: 0 4px 20px var(--accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    min-height: 48px;
+}
+
+#group-mode .action-btn:hover:not(:disabled) {
+    background: #7df0c0;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 28px rgba(110, 231, 183, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+#group-mode .action-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Group mode — warning-tinted tags */
+#group-mode .tag,
+.tag-group {
+    background: var(--warning-dim);
+    color: var(--warning);
+}
+
+#group-mode .tag-x,
+.tag-group .tag-x {
+    color: var(--warning);
+}
+
+#group-mode .tag-x:hover,
+.tag-group .tag-x:hover {
+    background: rgba(251, 191, 36, 0.15);
+}
+
+#group-mode .count-badge {
+    background: var(--warning-dim);
+    color: var(--warning);
+}
+
+/* Group mode — member panel scrollable */
+.member-panel {
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--surface-active) transparent;
+}
+
+.member-panel .form-group:last-of-type {
+    margin-bottom: 0;
+}
+
+/* Group mode — form labels (compact uppercase) */
+#group-mode .form-label {
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+/* Group mode — slightly larger input padding */
+#group-mode input[type="text"],
+#group-mode input[type="number"],
+#group-mode textarea {
+    padding: 10px 12px;
+}
+
 .btn {
     padding: 8px 14px;
     border: none;
@@ -468,6 +566,11 @@ body::after {
     flex-shrink: 0;
 }
 
+#group-mode .btn-group {
+    display: flex;
+    gap: 6px;
+}
+
 .button-group {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -495,14 +598,17 @@ body::after {
     flex-shrink: 0;
 }
 
+#wheel-mode .form-group {
+    margin-bottom: 12px;
+}
+
 .form-label, label {
     display: block;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     color: var(--muted);
     margin-bottom: 6px;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
+    letter-spacing: 0.02em;
 }
 
 label.label-hint {
@@ -1829,6 +1935,7 @@ textarea:focus-visible {
     .items-display, .tags { gap: 4px; }
     .item-tag, .tag { padding: 3px 8px; font-size: 11px; }
     .item-tag button, .tag-x { width: 16px; height: 16px; font-size: 12px; }
+    .member-panel { overflow-y: visible; }
     #group-results, .results-grid { grid-template-columns: 1fr; gap: 10px; }
     .group-card-header { padding: 10px 12px; }
     .group-card-header-title, .group-card-title { font-size: 14px; }
