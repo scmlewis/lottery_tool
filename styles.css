@@ -433,8 +433,17 @@ body.group-mode::before {
 #group-mode .action-btn {
     background: var(--accent);
     color: var(--bg);
-    box-shadow: 0 4px 20px var(--accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: var(--radius-lg);
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 700;
+    padding: 14px 24px;
     min-height: 48px;
+    cursor: pointer;
+    letter-spacing: 0.01em;
+    box-shadow: 0 4px 20px var(--accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 #group-mode .action-btn:hover:not(:disabled) {
@@ -953,6 +962,7 @@ input[type="range"]::-moz-range-thumb {
     background: var(--accent-dim);
     color: var(--accent);
     border-radius: var(--radius-sm);
+    font-family: var(--font-display);
     font-size: 12px;
     font-weight: 500;
     animation: tagIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -1414,6 +1424,7 @@ input[type="range"]::-moz-range-thumb {
     color: var(--bg);
     border: none;
     border-radius: var(--radius-md);
+    font-family: var(--font-display);
     font-size: 18px;
     font-weight: 700;
     cursor: pointer;
@@ -1432,9 +1443,7 @@ input[type="range"]::-moz-range-thumb {
 }
 
 /* Radio options (Group mode) */
-.radio-group {
-    display: flex;
-    flex-direction: column;
+#group-mode .radio-group {
     gap: 6px;
 }
 
@@ -1448,6 +1457,7 @@ input[type="range"]::-moz-range-thumb {
     border-radius: var(--radius-md);
     cursor: pointer;
     transition: background 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s, color 0.2s;
+    font-family: var(--font-display);
     font-size: 13px;
     color: var(--muted);
 }
@@ -1476,6 +1486,7 @@ input[type="range"]::-moz-range-thumb {
     background: var(--warning-dim);
     color: var(--warning);
     border-radius: 12px;
+    font-family: var(--font-display);
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.02em;
@@ -1525,9 +1536,11 @@ input[type="range"]::-moz-range-thumb {
 }
 
 .empty-desc {
+    font-family: var(--font-body);
     font-size: 13px;
     line-height: 1.55;
     max-width: 240px;
+    color: var(--muted);
 }
 
 /* ═══════════════════════════════════════
@@ -1551,7 +1564,6 @@ input[type="range"]::-moz-range-thumb {
 .mt-sm { margin-top: 8px; }
 .mt-md { margin-top: 16px; }
 .inline-flex { display:flex; align-items:center; gap:6px; }
-.empty-state { color: var(--muted); padding: 8px; font-size: 13px; text-align: center; }
 .form-error { color: var(--danger); font-size: 11px; margin-top: 4px; display: none; }
 .form-error.visible { display: block; }
 .form-hint { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
