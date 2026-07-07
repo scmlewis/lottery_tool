@@ -266,7 +266,12 @@ function setupEventListeners() {
     document.getElementById('shuffle-list-btn')?.addEventListener('click', shuffleList);
     document.getElementById('delete-list-btn')?.addEventListener('click', deleteCurrentList);
 
-    document.getElementById('pick-number-btn')?.addEventListener('click', pickNumber);
+    document.getElementById('pick-number-btn')?.addEventListener('click', async () => {
+        const btn = document.getElementById('pick-number-btn');
+        if (btn) btn.disabled = true;
+        try { await pickNumber(); }
+        finally { if (btn) btn.disabled = false; }
+    });
     document.getElementById('clear-history-btn')?.addEventListener('click', () => { clearNumberHistory(); });
     document.getElementById('clear-wheel-history-btn')?.addEventListener('click', () => { clearWheelHistory(); });
 

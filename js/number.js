@@ -1,133 +1,131 @@
 import { state } from './state.js';
 import { showWinnerOverlay, startSpinTick, stopSpinTick, playReveal } from './display.js';
+import { showToast } from './utils.js';
+
+function persistDrawnNumbers() {
+    try { localStorage.setItem('drawnNumbers', JSON.stringify([...state.drawnNumbers])); }
+    catch { /* ignore quota */ }
+}
 
 export function pickNumber() {
-    const min = parseInt(state.els.minNumber.value) || 0;
-    const max = parseInt(state.els.maxNumber.value) || 100;
-    const excludeDrawn = state.els.excludeDrawn.checked;
-    const timesToDraw = parseInt(state.els.drawSlider.value) || 1;
+    return new Promise((resolve) => {
+        const min = parseInt(state.els.minNumber.value) || 0;
+        const max = parseInt(state.els.maxNumber.value) || 100;
+        const excludeDrawn = state.els.excludeDrawn.checked;
+        const timesToDraw = parseInt(state.els.drawSlider.value) || 1;
 
-    if (min >= max) return;
-    if (timesToDraw <= 0) return;
+        if (min >= max) { resolve(); return; }
+        if (timesToDraw <= 0) { resolve(); return; }
 
-    const btn = document.getElementById('pick-number-btn');
-    if (btn) btn.disabled = true;
+        state.els.numberDisplay.querySelectorAll('.number-item').forEach(s => s.remove());
 
-    state.els.numberDisplay.querySelectorAll('.number-item').forEach(s => s.remove());
-
-    if (state.rollAnimFrameId) {
-        cancelAnimationFrame(state.rollAnimFrameId);
-        state.rollAnimFrameId = null;
-    }
-
-    state.els.numberDisplay.classList.add('rolling');
-    state.els.numberDisplay.classList.add('has-numbers');
-
-    startSpinTick();
-
-    const range = max - min + 1;
-
-    if (excludeDrawn && state.drawnNumbers.size >= range) {
-        saveDrawnNumbers();
-        state.drawnNumbers.clear();
-        showToast('All numbers drawn — exclusion cleared', 'info');
-    }
-
-    let availablePool = null;
-    if (excludeDrawn) {
-        availablePool = [];
-        for (let j = min; j <= max; j++) {
-            if (!state.drawnNumbers.has(j)) availablePool.push(j);
+        if (state.rollAnimFrameId) {
+            cancelAnimationFrame(state.rollAnimFrameId);
+            state.rollAnimFrameId = null;
         }
-        if (availablePool.length === 0) {
-            state.els.numberDisplay.classList.remove('rolling');
-            state.els.numberDisplay.classList.remove('has-numbers');
-            stopSpinTick();
-            if (btn) btn.disabled = false;
-            return;
+
+        state.els.numberDisplay.classList.add('rolling');
+        state.els.numberDisplay.classList.add('has-numbers');
+
+        startSpinTick();
+
+        const range = max - min + 1;
+
+        if (excludeDrawn && state.drawnNumbers.size >= range) {
+            state.drawnNumbers.clear();
+            showToast('All numbers drawn — exclusion cleared', 'info');
         }
-    }
 
-    const drawnThisRound = [];
-    for (let i = 0; i < timesToDraw; i++) {
-        if (availablePool) {
-            if (availablePool.length === 0) break;
-            const idx = Math.floor(Math.random() * availablePool.length);
-            const num = availablePool.splice(idx, 1)[0];
-            state.drawnNumbers.add(num);
-            drawnThisRound.push(num);
-        } else {
-            drawnThisRound.push(Math.floor(Math.random() * range) + min);
-        }
-    }
-
-    const spans = [];
-    for (let i = 0; i < drawnThisRound.length; i++) {
-        const span = document.createElement('span');
-        span.className = 'number-item rolling';
-        state.els.numberDisplay.appendChild(span);
-        spans.push(span);
-    }
-
-    state.els.numberDisplay.classList.remove('count-5', 'count-10', 'count-15', 'count-20');
-    if (drawnThisRound.length >= 20) state.els.numberDisplay.classList.add('count-20');
-    else if (drawnThisRound.length >= 15) state.els.numberDisplay.classList.add('count-15');
-    else if (drawnThisRound.length >= 10) state.els.numberDisplay.classList.add('count-10');
-    else if (drawnThisRound.length >= 5) state.els.numberDisplay.classList.add('count-5');
-
-    const rollDuration = 1000;
-    let rollStartTime = Date.now();
-
-    function reEnableButton() {
-        state.els.numberDisplay.classList.remove('rolling');
-        const currentBtn = document.getElementById('pick-number-btn');
-        if (currentBtn) currentBtn.disabled = false;
-    }
-
-    function rollTick() {
-        const elapsed = Date.now() - rollStartTime;
-
-        if (elapsed >= rollDuration) {
-            stopSpinTick();
-            playReveal();
-            drawnThisRound.forEach((num, i) => {
-                if (spans[i]) {
-                    spans[i].textContent = num;
-                    spans[i].classList.remove('rolling');
-                    spans[i].classList.add('revealed');
-                    spans[i].style.animationDelay = `${i * 60}ms`;
-                }
-            });
-            state.els.numberDisplay.classList.remove('rolling');
-
-            state.batchHistory.unshift(drawnThisRound);
-            if (state.batchHistory.length > 50) state.batchHistory.length = 50;
-            updateNumberHistory();
-            updateDrawProgress();
-            saveDrawnNumbers();
-
-            if (state.displayMode) {
-                const numStr = drawnThisRound.join(', ');
-                showWinnerOverlay(numStr, 'Number Draw');
+        let availablePool = null;
+        if (excludeDrawn) {
+            availablePool = [];
+            for (let j = min; j <= max; j++) {
+                if (!state.drawnNumbers.has(j)) availablePool.push(j);
             }
-
-            // Re-enable button after all reveal animations finish
-            const totalDuration = 500 + drawnThisRound.length * 60;
-            setTimeout(reEnableButton, totalDuration);
-
-            return;
+            if (availablePool.length === 0) {
+                state.els.numberDisplay.classList.remove('rolling');
+                state.els.numberDisplay.classList.remove('has-numbers');
+                stopSpinTick();
+                persistDrawnNumbers();
+                resolve();
+                return;
+            }
         }
 
+        const drawnThisRound = [];
+        for (let i = 0; i < timesToDraw; i++) {
+            if (availablePool) {
+                if (availablePool.length === 0) break;
+                const idx = Math.floor(Math.random() * availablePool.length);
+                const num = availablePool.splice(idx, 1)[0];
+                state.drawnNumbers.add(num);
+                drawnThisRound.push(num);
+            } else {
+                drawnThisRound.push(Math.floor(Math.random() * range) + min);
+            }
+        }
+
+        const spans = [];
         for (let i = 0; i < drawnThisRound.length; i++) {
-            if (spans[i]) {
-                spans[i].textContent = Math.floor(Math.random() * range) + min;
+            const span = document.createElement('span');
+            span.className = 'number-item rolling';
+            state.els.numberDisplay.appendChild(span);
+            spans.push(span);
+        }
+
+        state.els.numberDisplay.classList.remove('count-5', 'count-10', 'count-15', 'count-20');
+        if (drawnThisRound.length >= 20) state.els.numberDisplay.classList.add('count-20');
+        else if (drawnThisRound.length >= 15) state.els.numberDisplay.classList.add('count-15');
+        else if (drawnThisRound.length >= 10) state.els.numberDisplay.classList.add('count-10');
+        else if (drawnThisRound.length >= 5) state.els.numberDisplay.classList.add('count-5');
+
+        const rollDuration = 1000;
+        let rollStartTime = Date.now();
+
+        function rollTick() {
+            const elapsed = Date.now() - rollStartTime;
+
+            if (elapsed >= rollDuration) {
+                stopSpinTick();
+                playReveal();
+                drawnThisRound.forEach((num, i) => {
+                    if (spans[i]) {
+                        spans[i].textContent = num;
+                        spans[i].classList.remove('rolling');
+                        spans[i].classList.add('revealed');
+                        spans[i].style.animationDelay = `${i * 60}ms`;
+                    }
+                });
+                state.els.numberDisplay.classList.remove('rolling');
+                state.rollAnimFrameId = null;
+
+                state.batchHistory.unshift(drawnThisRound);
+                if (state.batchHistory.length > 50) state.batchHistory.length = 50;
+                updateNumberHistory();
+                updateDrawProgress();
+                persistDrawnNumbers();
+
+                if (state.displayMode) {
+                    const numStr = drawnThisRound.join(', ');
+                    showWinnerOverlay(numStr, 'Number Draw');
+                }
+
+                const totalDuration = 500 + drawnThisRound.length * 60;
+                setTimeout(resolve, totalDuration);
+                return;
             }
+
+            for (let i = 0; i < drawnThisRound.length; i++) {
+                if (spans[i]) {
+                    spans[i].textContent = Math.floor(Math.random() * range) + min;
+                }
+            }
+
+            state.rollAnimFrameId = requestAnimationFrame(rollTick);
         }
 
         state.rollAnimFrameId = requestAnimationFrame(rollTick);
-    }
-
-    state.rollAnimFrameId = requestAnimationFrame(rollTick);
+    });
 }
 
 export function updateNumberHistory() {
@@ -186,7 +184,7 @@ export function clearNumberHistory() {
     if (!confirm('Clear all number draw history?')) return;
     state.batchHistory = [];
     state.drawnNumbers.clear();
-    saveDrawnNumbers();
+    persistDrawnNumbers();
     restorePlaceholder();
     updateNumberHistory();
     updateDrawProgress();
@@ -215,4 +213,3 @@ export function restorePlaceholder() {
     content.appendChild(placeholder);
     state.els.numberDisplay.appendChild(content);
 }
-
