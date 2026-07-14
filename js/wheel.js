@@ -189,7 +189,7 @@ export function spinWheel() {
 
 export function displayWinner(name) {
     state.els.winnerDisplay.querySelector('.winner-name').textContent = name;
-    state.els.winnerDisplay.querySelector('.winner-label').textContent = '\uD83C\uDF89 Winner!';
+    state.els.winnerDisplay.querySelector('.winner-label').textContent = 'Winner';
     state.els.winnerDisplay.classList.add('active');
 
     if (state.displayMode) {

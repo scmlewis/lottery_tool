@@ -1,0 +1,26 @@
+# Graphify temp files
+.graphify_*.json
+.graphify_*.txt
+.graphify_python
+graphify-out/
+raw/
+
+# Agent / editor / tooling config (local only)
+.agents/
+.opencode/
+opencode.json
+skills-lock.json
+
+# Graphify local scripts (dev tooling, not the app)
+.graphify_explain.py
+.graphify_query.py
+
+# Reference copy of the pre-redesign design (not the live app)
+(ref for redesign)/
+
+# Node modules
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db

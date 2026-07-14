@@ -14,14 +14,12 @@
     --accent: #6ee7b7;
     --accent-dim: rgba(110, 231, 183, 0.12);
     --accent-glow: rgba(110, 231, 183, 0.25);
-    --secondary: #818cf8;
-    --secondary-dim: rgba(129, 140, 248, 0.12);
     --danger: #fb7185;
     --danger-dim: rgba(251, 113, 133, 0.12);
     --warning: #fbbf24;
     --warning-dim: rgba(251, 191, 36, 0.12);
     --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
-    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    --font-body: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
     --radius-sm: 6px;
     --radius-md: 8px;
     --radius-lg: 12px;
@@ -32,6 +30,8 @@
    RESET & BASE
    ═══════════════════════════════════════ */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
 
 body {
     font-family: var(--font-body);
@@ -88,6 +88,48 @@ body.group-mode::before {
 }
 
 /* ═══════════════════════════════════════
+   SKIP LINK
+   ═══════════════════════════════════════ */
+.skip-link {
+    position: fixed;
+    top: -120px;
+    left: 16px;
+    z-index: 1000;
+    padding: 10px 18px;
+    background: var(--accent);
+    color: var(--bg);
+    border-radius: var(--radius-md);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 13px;
+    text-decoration: none;
+    transition: top 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 20px var(--accent-glow);
+}
+
+.skip-link:focus {
+    top: 16px;
+    outline: none;
+}
+
+#main-content:focus {
+    outline: none;
+}
+
+/* ═══════════════════════════════════════
+   GRAIN OVERLAY
+   ═══════════════════════════════════════ */
+.grain {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+}
+
+/* ═══════════════════════════════════════
    TOPBAR
    ═══════════════════════════════════════ */
 .topbar {
@@ -119,7 +161,7 @@ body.group-mode::before {
     width: 32px;
     height: 32px;
     border-radius: 10px;
-    background: linear-gradient(135deg, var(--accent-dim), var(--secondary-dim));
+    background: var(--accent-dim);
     border: 1px solid var(--glass-border);
     display: flex;
     align-items: center;
@@ -147,7 +189,10 @@ body.group-mode::before {
 }
 
 .mode-tab {
-    padding: 6px 16px;
+    padding: 6px 14px 6px 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
     background: transparent;
     color: var(--muted);
     border: none;
@@ -158,6 +203,12 @@ body.group-mode::before {
     transition: color 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     font-family: var(--font-display);
     letter-spacing: 0.01em;
+}
+
+.tab-icon {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
 }
 
 .mode-tab:hover {
@@ -305,6 +356,7 @@ body.group-mode::before {
     margin-bottom: 16px;
     flex-shrink: 0;
     color: var(--fg);
+    text-wrap: balance;
 }
 
 .panel-header {
@@ -336,6 +388,8 @@ body.group-mode::before {
     flex-direction: column;
     align-items: center;
     gap: 16px;
+    overflow: hidden auto;
+    padding-right: 4px;
 }
 
 .wheel-container {
@@ -416,17 +470,17 @@ body.group-mode::before {
     cursor: not-allowed;
 }
 
-/* Number mode — secondary (indigo) spin button */
+/* Number mode — accent spin button (single-accent system) */
 #number-mode .spin-button,
 #number-mode .spin-btn {
-    background: linear-gradient(135deg, var(--secondary), #6366f1);
-    color: #fff;
-    box-shadow: 0 4px 20px rgba(129, 140, 248, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    background: linear-gradient(135deg, var(--accent), #4ade80);
+    color: var(--bg);
+    box-shadow: 0 4px 20px var(--accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 #number-mode .spin-button:hover:not(:disabled),
 #number-mode .spin-btn:hover:not(:disabled) {
-    box-shadow: 0 6px 28px rgba(129, 140, 248, 0.4);
+    box-shadow: 0 6px 28px rgba(110, 231, 183, 0.4);
 }
 
 /* Group mode — solid accent action button */
@@ -459,26 +513,26 @@ body.group-mode::before {
     box-shadow: none;
 }
 
-/* Group mode — warning-tinted tags */
+/* Group mode — accent-tinted tags */
 #group-mode .tag,
 .tag-group {
-    background: var(--warning-dim);
-    color: var(--warning);
+    background: var(--accent-dim);
+    color: var(--accent);
 }
 
 #group-mode .tag-x,
 .tag-group .tag-x {
-    color: var(--warning);
+    color: var(--accent);
 }
 
 #group-mode .tag-x:hover,
 .tag-group .tag-x:hover {
-    background: rgba(251, 191, 36, 0.15);
+    background: rgba(110, 231, 183, 0.15);
 }
 
 #group-mode .count-badge {
-    background: var(--warning-dim);
-    color: var(--warning);
+    background: var(--accent-dim);
+    color: var(--accent);
 }
 
 /* Group mode — member panel scrollable */
@@ -862,11 +916,11 @@ input[type="range"]::-moz-range-thumb {
 }
 
 .winner-label {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
+    text-transform: none;
+    letter-spacing: 0.02em;
     margin-bottom: 6px;
 }
 
@@ -1483,8 +1537,8 @@ input[type="range"]::-moz-range-thumb {
     min-width: 24px;
     height: 24px;
     padding: 0 7px;
-    background: var(--warning-dim);
-    color: var(--warning);
+    background: var(--accent-dim);
+    color: var(--accent);
     border-radius: 12px;
     font-family: var(--font-display);
     font-size: 11px;
@@ -1982,10 +2036,13 @@ textarea:focus-visible {
 }
 
 @media (max-width: 480px) {
-    .container { padding: 0 8px; }
-    .topbar { padding: 8px 8px; }
+    .container { padding:0 8px; }
+    .topbar { padding: 8px 8px; gap: 8px; }
     .topbar h1 { font-size: 13px; }
-    .mode-tab { padding: 4px 8px; font-size: 0.65em; }
+    .mode-tabs { margin-left: 4px; gap: 2px; padding: 2px; }
+    .mode-tab { padding: 7px; font-size: 0.65em; }
+    .tab-label { display: none; }
+    .topbar-right { gap: 6px; }
     .panel { padding: 12px; border-radius: var(--radius-lg); }
     .panel h2, .panel-title { font-size: 13px; margin-bottom: 10px; }
     .spin-button, .spin-btn { padding: 10px 16px; font-size: 13px; }
@@ -2029,17 +2086,6 @@ body.display-mode .container {
 
 body.display-mode .topbar {
     display: none;
-}
-
-body.display-mode .top-actions {
-    top: 10px;
-    right: 14px;
-    opacity: 0;
-    transition: opacity 0.3s;
-}
-
-body.display-mode .top-actions:hover {
-    opacity: 1;
 }
 
 body.display-mode .main-content {

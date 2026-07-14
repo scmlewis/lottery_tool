@@ -3,24 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lucky Draw</title>
+    <title>Lucky Draw — Wheel, Numbers & Groups</title>
+    <meta name="description" content="Spin a lucky wheel, draw random numbers, and sort people into groups. A fast, private web tool that runs entirely in your browser — no sign-up, no tracking.">
+    <meta name="theme-color" content="#0a0e17">
+    <meta name="color-scheme" content="dark">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Lucky Draw">
+    <meta property="og:description" content="Spin a wheel, draw random numbers, and divide people into groups — all in your browser.">
+    <meta property="og:image" content="https://picsum.photos/seed/luckydraw/1200/630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Lucky Draw">
+    <meta name="twitter:description" content="Spin a wheel, draw random numbers, and divide people into groups — all in your browser.">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='3' y='3' width='18' height='18' rx='4' fill='%230a0e17' stroke='%236ee7b7' stroke-width='2'/%3E%3Ccircle cx='8.5' cy='8.5' r='1.5' fill='%236ee7b7'/%3E%3Ccircle cx='15.5' cy='8.5' r='1.5' fill='%236ee7b7'/%3E%3Ccircle cx='12' cy='12' r='1.5' fill='%236ee7b7'/%3E%3Ccircle cx='8.5' cy='15.5' r='1.5' fill='%236ee7b7'/%3E%3Ccircle cx='15.5' cy='15.5' r='1.5' fill='%236ee7b7'/%3E%3C/svg%3E">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <a href="#main-content" class="skip-link">Skip to content</a>
+
     <!-- Topbar -->
     <header class="topbar" role="banner">
         <div class="topbar-brand">
-            <div class="topbar-icon" aria-hidden="true">🎲</div>
+            <div class="topbar-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="4"/>
+                    <circle cx="8.5" cy="8.5" r="1.2" fill="currentColor" stroke="none"/>
+                    <circle cx="15.5" cy="8.5" r="1.2" fill="currentColor" stroke="none"/>
+                    <circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/>
+                    <circle cx="8.5" cy="15.5" r="1.2" fill="currentColor" stroke="none"/>
+                    <circle cx="15.5" cy="15.5" r="1.2" fill="currentColor" stroke="none"/>
+                </svg>
+            </div>
             <h1>Lucky Draw</h1>
         </div>
 
         <div class="mode-tabs" role="tablist" aria-label="Mode selection">
-            <button class="mode-tab active" data-mode="wheel" role="tab" aria-selected="true">🎡 Wheel</button>
-            <button class="mode-tab" data-mode="number" role="tab" aria-selected="false"># Number</button>
-            <button class="mode-tab" data-mode="group" role="tab" aria-selected="false">👥 Group</button>
+            <button class="mode-tab active" data-mode="wheel" role="tab" aria-selected="true">
+                <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9"/><path d="M12 3v9l6.4 3.7"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/>
+                </svg>
+                <span class="tab-label">Wheel</span>
+            </button>
+            <button class="mode-tab" data-mode="number" role="tab" aria-selected="false">
+                <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M4 9h16M4 15h16M10 3 8 21M16 3l-2 18"/>
+                </svg>
+                <span class="tab-label">Number</span>
+            </button>
+            <button class="mode-tab" data-mode="group" role="tab" aria-selected="false">
+                <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 4.5a3 3 0 0 1 0 7"/><path d="M21 20a5.5 5.5 0 0 0-4-5.3"/>
+                </svg>
+                <span class="tab-label">Group</span>
+            </button>
         </div>
 
         <div class="topbar-right">
@@ -39,7 +76,7 @@
         </div>
     </header>
 
-    <div class="container">
+    <div class="container" id="main-content" tabindex="-1">
 
         <!-- Wheel Mode -->
         <div id="wheel-mode" class="mode-content active">
@@ -112,20 +149,6 @@
                             <div class="tags" id="items-display" style="margin-top: 8px;"></div>
                         </div>
                     </div>
-
-                    <!-- Draw History -->
-                    <div class="history-section">
-                        <div class="collapse-header" data-collapse="history">
-                            <span class="collapse-title">Draw History</span>
-                            <div class="history-header">
-                                <button class="btn btn-secondary btn-sm" id="clear-wheel-history-btn">Clear</button>
-                                <span class="collapse-arrow">▼</span>
-                            </div>
-                        </div>
-                        <div class="collapse-body" id="history-body">
-                            <div class="history-list" id="wheel-history-list"></div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -175,7 +198,11 @@
                     <div class="number-display" id="number-display">
                         <div id="number-display-content" class="text-center">
                             <div class="number-placeholder">
-                                <div class="number-placeholder-emoji">🎯</div>
+                                <div class="number-placeholder-emoji">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/>
+                                    </svg>
+                                </div>
                                 <div class="number-placeholder-text">Set range and quantity,<br>then tap to draw</div>
                             </div>
                         </div>
@@ -286,24 +313,6 @@
             </section>
 
             <section class="settings-section">
-                <h3>Grouping</h3>
-                <div class="settings-radio-group">
-                    <label class="settings-radio">
-                        <input type="radio" name="group-mode" value="size" checked>
-                        <span>Each group has N members</span>
-                    </label>
-                    <label class="settings-radio">
-                        <input type="radio" name="group-mode" value="count">
-                        <span>Divide into K groups</span>
-                    </label>
-                </div>
-                <div class="settings-row">
-                    <label for="group-number">Number</label>
-                    <input type="number" id="group-number" value="3" min="1" style="width:60px;">
-                </div>
-            </section>
-
-            <section class="settings-section">
                 <h3>Display Mode</h3>
                 <div class="settings-row">
                     <label for="setting-sound">Sound Effects</label>
@@ -336,6 +345,9 @@
             <button class="winner-overlay-close" id="winner-overlay-close">Next Draw</button>
         </div>
     </div>
+
+    <!-- Subtle film-grain texture overlay -->
+    <div class="grain" aria-hidden="true"></div>
 
     <script type="module" src="js/app.js"></script>
 </body>
