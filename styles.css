@@ -2088,6 +2088,10 @@ body.display-mode .topbar {
     display: none;
 }
 
+body.display-mode .app-footer {
+    display: none;
+}
+
 body.display-mode .main-content {
     grid-template-columns: 1fr !important;
     gap: 0;
