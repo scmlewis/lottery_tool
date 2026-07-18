@@ -1,31 +1,151 @@
+import { motion } from 'motion/react';
 import { AppMode, ActivityEntry } from '../types';
 
 interface DashboardViewProps {
   onNavigate: (mode: AppMode) => void;
   activities: ActivityEntry[];
-  lastWinnerName: string;
-  lastWinnerCode: string;
+  lastWinnerName?: string;
+  lastWinnerCode?: string;
 }
 
-export default function DashboardView({ onNavigate, activities, lastWinnerName, lastWinnerCode }: DashboardViewProps) {
+export default function DashboardView({
+  onNavigate,
+  activities,
+  lastWinnerName = 'Sarah Jenkins',
+  lastWinnerCode = 'GOLD-774-LX',
+}: DashboardViewProps) {
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-primary">Dashboard</h2>
-      <p className="text-on-surface-variant">Last winner: {lastWinnerName} ({lastWinnerCode})</p>
-      <div className="grid grid-cols-2 gap-4">
-        <button onClick={() => onNavigate('wheel')} className="p-4 bg-surface-container rounded-lg">Wheel</button>
-        <button onClick={() => onNavigate('number')} className="p-4 bg-surface-container rounded-lg">Number</button>
-        <button onClick={() => onNavigate('group')} className="p-4 bg-surface-container rounded-lg">Group</button>
-      </div>
-      <div className="space-y-2">
-        <h3 className="text-sm font-bold uppercase tracking-widest text-primary">Recent Activity</h3>
-        {activities.map(a => (
-          <div key={a.id} className="p-3 bg-surface-container rounded text-sm text-on-surface-variant">
-            {a.title} — {a.subtitle}
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -15 }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
+      className="space-y-12"
+    >
+      <section className="relative overflow-hidden rounded-lg bg-surface-container h-[420px] flex items-end p-8 md:p-12 shadow-2xl">
+        <div className="absolute inset-0 z-0 bg-gradient-to-t from-background via-background/40 to-transparent"></div>
+        <div className="relative z-10 w-full md:w-2/3 space-y-6">
+          <div className="space-y-2">
+            <span className="text-primary font-label text-xs uppercase tracking-[0.2em] font-extrabold bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
+              The Premium Playroom
+            </span>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-headline font-extrabold tracking-tight text-on-surface leading-none mt-2">
+              Welcome back, Architect.
+            </h2>
+            <p className="text-on-surface-variant text-base md:text-lg max-w-md leading-relaxed">
+              Your next winning configuration is a heartbeat away. Precision tools for the discerning player.
+            </p>
+          </div>
+          <button
+            onClick={() => onNavigate('wheel')}
+            className="bg-gradient-to-br from-primary to-primary-container text-on-primary font-bold px-8 py-4 rounded-xl text-lg hover:brightness-110 active:scale-95 transition-all shadow-xl shadow-primary/15 flex items-center gap-2 cursor-pointer"
+          >
+            Quick Start
+            <span className="material-symbols-outlined text-base">arrow_forward</span>
+          </button>
+        </div>
+      </section>
+
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {[
+          { mode: 'wheel' as const, icon: 'casino', title: 'Wheel', desc: 'Visual randomization with tactile feedback and customizable slots.', action: 'Launch' },
+          { mode: 'number' as const, icon: 'filter_7', title: 'Number', desc: 'Algorithmic generation with complex exclusion and weighting rules.', action: 'Configure' },
+          { mode: 'group' as const, icon: 'group', title: 'Group', desc: 'Distribute lists into perfectly balanced clusters for team draws.', action: 'Initialize' },
+        ].map((item) => (
+          <div
+            key={item.mode}
+            onClick={() => onNavigate(item.mode)}
+            className="group relative bg-surface-container hover:bg-surface-container-high rounded-lg p-8 h-80 flex flex-col justify-between overflow-hidden cursor-pointer border border-transparent hover:border-primary/20 transition-all duration-300 shadow-lg"
+          >
+            <div className="absolute -right-8 -top-8 opacity-5 group-hover:opacity-10 transition-opacity duration-300">
+              <span className="material-symbols-outlined text-[12rem] text-primary">{item.icon}</span>
+            </div>
+            <div className="z-10">
+              <div className="w-12 h-12 rounded-full bg-surface-container-high group-hover:bg-primary/10 flex items-center justify-center mb-6 transition-colors duration-300">
+                <span className="material-symbols-outlined text-primary text-2xl">{item.icon}</span>
+              </div>
+              <h3 className="text-2xl font-bold font-headline mb-2 text-on-surface group-hover:text-primary transition-colors">
+                {item.title}
+              </h3>
+              <p className="text-on-surface-variant text-sm leading-relaxed">{item.desc}</p>
+            </div>
+            <div className="z-10 flex items-center gap-2 text-primary font-bold text-sm tracking-widest uppercase mt-4">
+              {item.action}{' '}
+              <span className="material-symbols-outlined text-xs group-hover:translate-x-1 transition-transform">
+                arrow_forward
+              </span>
+            </div>
           </div>
         ))}
-        {activities.length === 0 && <p className="text-xs text-on-surface-variant/50">No activity yet</p>}
-      </div>
-    </div>
+      </section>
+
+      <section className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="lg:col-span-8 space-y-6">
+          <h2 className="text-2xl font-headline font-bold text-on-surface flex items-center gap-2">
+            <span className="material-symbols-outlined text-primary">history</span>
+            Recent Activity
+          </h2>
+          <div className="bg-surface-container-low rounded-lg overflow-hidden border border-white/5 divide-y divide-outline-variant/10 shadow-lg">
+            {activities.length === 0 ? (
+              <div className="p-8 text-center text-on-surface-variant">
+                No activity yet. Draw some numbers or spin the wheel to begin!
+              </div>
+            ) : (
+              activities.map((act) => (
+                <div
+                  key={act.id}
+                  className="p-6 flex items-center justify-between hover:bg-surface-container/50 transition-colors duration-200"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center">
+                      <span className="material-symbols-outlined text-primary text-xl">
+                        {act.type === 'wheel' ? 'casino' : act.type === 'number' ? 'filter_7' : 'group'}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="font-bold text-on-surface">{act.title}</p>
+                      <p className="text-xs text-on-surface-variant">
+                        {new Date(act.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {act.subtitle}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-primary font-bold font-mono tracking-wider text-sm bg-primary/5 px-2.5 py-1 rounded border border-primary/10">
+                    {act.code}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        <div className="lg:col-span-4 space-y-6">
+          <h2 className="text-2xl font-headline font-bold text-on-surface flex items-center gap-2">
+            <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+            Last Winner
+          </h2>
+          <div className="bg-gradient-to-br from-surface-container to-surface-container-lowest rounded-lg p-8 relative overflow-hidden border border-primary/10 shadow-2xl">
+            <div className="absolute top-0 right-0 p-4">
+              <span className="material-symbols-outlined text-primary opacity-30" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+            </div>
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="relative">
+                <div className="absolute -inset-1.5 bg-gradient-to-r from-primary to-secondary rounded-full blur-md opacity-40 animate-pulse"></div>
+                <div className="w-24 h-24 rounded-full bg-surface-container-high border-2 border-primary flex items-center justify-center relative z-10">
+                  <span className="material-symbols-outlined text-primary text-4xl">person</span>
+                </div>
+              </div>
+              <div>
+                <h4 className="text-xl font-bold font-headline text-on-surface">{lastWinnerName}</h4>
+                <p className="text-primary font-label text-xs tracking-widest uppercase mt-1">Tier One Member</p>
+              </div>
+              <div className="w-full bg-surface-container-highest/40 rounded-lg p-4 mt-4 border border-white/5">
+                <div className="text-[10px] uppercase tracking-tighter text-on-surface-variant mb-1">Winning Code</div>
+                <div className="text-2xl font-mono font-black tracking-widest text-primary">{lastWinnerCode}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </motion.div>
   );
 }
