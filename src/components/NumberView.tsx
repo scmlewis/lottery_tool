@@ -14,7 +14,7 @@ export default function NumberView({ batches, onAddBatch, onAddActivity }: Numbe
   const [minVal, setMinVal] = useState(1);
   const [maxVal, setMaxVal] = useState(99);
   const [quantity, setQuantity] = useState(6);
-  const [latestDraw, setLatestDraw] = useState<number[]>([24, 7, 89, 12, 45, 33]);
+  const [latestDraw, setLatestDraw] = useState<number[]>([]);
   const [isDrawing, setIsDrawing] = useState(false);
   const [excludeDrawn, setExcludeDrawn] = useState(false);
   const [drawnNumbers, setDrawnNumbers] = useState<Set<number>>(new Set());
@@ -213,34 +213,42 @@ export default function NumberView({ batches, onAddBatch, onAddActivity }: Numbe
               <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-transparent"></div>
               <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant/60 mb-12 relative z-10">Latest Draw Result</h2>
 
-              <div className="flex flex-wrap justify-center gap-6 relative z-10">
-                {latestDraw.map((num, i) => (
-                  <motion.div
-                    key={`${num}-${i}`}
-                    initial={{ scale: 0.3, opacity: 0, y: 30 }}
-                    animate={{ scale: 1, opacity: 1, y: 0 }}
-                    transition={{ type: 'spring', damping: 12, stiffness: 100, delay: i * 0.1 }}
-                    className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-on-primary text-3xl md:text-4xl font-extrabold shadow-2xl shadow-primary/20 border-t-2 border-white/20 select-none"
-                  >
-                    {num.toString().padStart(2, '0')}
-                  </motion.div>
-                ))}
+              <div className="flex flex-wrap justify-center gap-6 relative z-10 min-h-[100px] items-center">
+                {latestDraw.length === 0 ? (
+                  <div className="text-on-surface-variant/40 text-sm">
+                    Set range and quantity, then draw
+                  </div>
+                ) : (
+                  latestDraw.map((num, i) => (
+                    <motion.div
+                      key={`${num}-${i}`}
+                      initial={{ scale: 0.3, opacity: 0, y: 30 }}
+                      animate={{ scale: 1, opacity: 1, y: 0 }}
+                      transition={{ type: 'spring', damping: 12, stiffness: 100, delay: i * 0.1 }}
+                      className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-on-primary text-3xl md:text-4xl font-extrabold shadow-2xl shadow-primary/20 border-t-2 border-white/20 select-none"
+                    >
+                      {num.toString().padStart(2, '0')}
+                    </motion.div>
+                  ))
+                )}
               </div>
 
-              <div className="mt-12 flex justify-center gap-4 relative z-10">
-                <button
-                  onClick={handleSaveBatch}
-                  className="px-6 py-3 rounded-full bg-surface-container-highest text-primary text-xs font-bold uppercase tracking-widest hover:bg-surface-variant transition-colors border border-primary/10 cursor-pointer"
-                >
-                  Save to Batch
-                </button>
-                <button
-                  onClick={handleCopyAll}
-                  className="px-6 py-3 rounded-full bg-transparent border-2 border-outline-variant/30 text-on-surface-variant text-xs font-bold uppercase tracking-widest hover:border-primary/50 transition-colors cursor-pointer"
-                >
-                  Copy All
-                </button>
-              </div>
+              {latestDraw.length > 0 && (
+                <div className="mt-12 flex justify-center gap-4 relative z-10">
+                  <button
+                    onClick={handleSaveBatch}
+                    className="px-6 py-3 rounded-full bg-surface-container-highest text-primary text-xs font-bold uppercase tracking-widest hover:bg-surface-variant transition-colors border border-primary/10 cursor-pointer"
+                  >
+                    Save to Batch
+                  </button>
+                  <button
+                    onClick={handleCopyAll}
+                    className="px-6 py-3 rounded-full bg-transparent border-2 border-outline-variant/30 text-on-surface-variant text-xs font-bold uppercase tracking-widest hover:border-primary/50 transition-colors cursor-pointer"
+                  >
+                    Copy All
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 

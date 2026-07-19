@@ -14,37 +14,16 @@ const ACCENT_COLORS = [
   'border-amber-500',
 ];
 
-const PRESET_MEMBERS = `Julian Thorne
-Elena Vance
-Marcus Chen
-Sofia Rossi
-Dominic Kaine
-Arlo Sterling
-Lydia Wells`;
-
 interface GroupViewProps {
   onAddActivity: (activity: ActivityEntry) => void;
 }
 
 export default function GroupView({ onAddActivity }: GroupViewProps) {
-  const [registryText, setRegistryText] = useState(PRESET_MEMBERS);
+  const [registryText, setRegistryText] = useState('');
   const [groupNamesText, setGroupNamesText] = useState('');
   const [strategy, setStrategy] = useState<'count' | 'size'>('count');
   const [strategyVal, setStrategyVal] = useState(4);
-  const [groups, setGroups] = useState<GroupAssignment[]>([
-    {
-      id: 'g-1',
-      name: 'Alpha Vanguard',
-      members: ['Julian Thorne', 'Elena Vance', 'Marcus Chen', 'Sofia Rossi'],
-      color: 'border-primary',
-    },
-    {
-      id: 'g-2',
-      name: 'Onyx Collective',
-      members: ['Dominic Kaine', 'Arlo Sterling', 'Lydia Wells'],
-      color: 'border-secondary-container',
-    },
-  ]);
+  const [groups, setGroups] = useState<GroupAssignment[]>([]);
 
   const handleOrganize = () => {
     const names = registryText

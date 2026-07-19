@@ -15,12 +15,7 @@ export default function App() {
   const [mode, setMode] = useState<AppMode>('dashboard');
   const [showSettings, setShowSettings] = useState(false);
   const [settings, setSettings] = useState<Settings>(() => loadSettings());
-  const [contestants, setContestants] = useState<Contestant[]>([
-    { id: '1', name: 'Apple' },
-    { id: '2', name: 'Banana' },
-    { id: '3', name: 'Cherry' },
-    { id: '4', name: 'Date' },
-  ]);
+  const [contestants, setContestants] = useState<Contestant[]>([]);
   const [winnerHistory, setWinnerHistory] = useState<WinnerHistoryEntry[]>(() => {
     return safeParseJSON(localStorage.getItem(STORAGE_KEY_WINNER_HISTORY), []);
   });
@@ -87,12 +82,7 @@ export default function App() {
 
   const handleResetPresets = () => {
     if (confirm('Are you sure you want to reset all data?')) {
-      setContestants([
-        { id: '1', name: 'Apple' },
-        { id: '2', name: 'Banana' },
-        { id: '3', name: 'Cherry' },
-        { id: '4', name: 'Date' },
-      ]);
+      setContestants([]);
       setWinnerHistory([]);
       setNumberBatches([]);
       setActivities([]);
