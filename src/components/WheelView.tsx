@@ -249,7 +249,7 @@ export default function WheelView({
             >
               {contestants.length === 0 ? (
                 <div className="absolute inset-0 flex items-center justify-center bg-surface-container">
-                  <span className="text-on-surface-variant/40 font-bold uppercase tracking-widest">Empty Pool</span>
+                  <span className="text-on-surface-variant/40 font-bold uppercase tracking-widest text-sm">No contestants</span>
                 </div>
               ) : (
                 <svg viewBox="0 0 400 400" className="w-full h-full">
@@ -298,11 +298,13 @@ export default function WheelView({
                 </svg>
               )}
 
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-24 h-24 rounded-full bg-background border-4 border-surface-container-highest shadow-inner flex items-center justify-center z-10">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#f2ca50] to-[#d4af37] shadow-[0_0_20px_rgba(242,202,80,0.4)]"></div>
+              {contestants.length > 0 && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-24 h-24 rounded-full bg-background border-4 border-surface-container-highest shadow-inner flex items-center justify-center z-10">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#f2ca50] to-[#d4af37] shadow-[0_0_20px_rgba(242,202,80,0.4)]"></div>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 

@@ -200,31 +200,38 @@ export default function GroupView({ onAddActivity }: GroupViewProps) {
 
         <section className="lg:col-span-7 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {groups.map((group) => (
-              <div
-                key={group.id}
-                className={`bg-surface-container-low rounded-lg p-6 border-l-4 ${group.color} border-t border-r border-b border-white/5 shadow-xl transition-all hover:scale-[1.02] duration-300`}
-              >
-                <div className="flex justify-between items-center mb-6">
-                  <h3 className="font-bold text-lg text-on-surface truncate pr-2 font-headline" title={group.name}>
-                    {group.name}
-                  </h3>
-                  <span className="text-[10px] shrink-0 px-2.5 py-1 rounded-full bg-surface-container-highest text-primary font-bold border border-primary/20 tracking-wider">
-                    {group.members.length} MEMBERS
-                  </span>
-                </div>
-                <ul className="space-y-4">
-                  {group.members.map((member, mIdx) => (
-                    <li key={mIdx} className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-primary font-bold text-xs ring-2 ring-primary/20">
-                        {getInitials(member)}
-                      </div>
-                      <span className="text-sm font-medium text-on-surface">{member}</span>
-                    </li>
-                  ))}
-                </ul>
+            {groups.length === 0 ? (
+              <div className="col-span-full p-12 text-center text-on-surface-variant/40 bg-surface-container-low rounded-lg border border-dashed border-outline-variant/15">
+                <span className="material-symbols-outlined text-4xl mb-4 block">group_work</span>
+                Add members and click Organize Assembly to create groups
               </div>
-            ))}
+            ) : (
+              groups.map((group) => (
+                <div
+                  key={group.id}
+                  className={`bg-surface-container-low rounded-lg p-6 border-l-4 ${group.color} border-t border-r border-b border-white/5 shadow-xl transition-all hover:scale-[1.02] duration-300`}
+                >
+                  <div className="flex justify-between items-center mb-6">
+                    <h3 className="font-bold text-lg text-on-surface truncate pr-2 font-headline" title={group.name}>
+                      {group.name}
+                    </h3>
+                    <span className="text-[10px] shrink-0 px-2.5 py-1 rounded-full bg-surface-container-highest text-primary font-bold border border-primary/20 tracking-wider">
+                      {group.members.length} MEMBERS
+                    </span>
+                  </div>
+                  <ul className="space-y-4">
+                    {group.members.map((member, mIdx) => (
+                      <li key={mIdx} className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-primary font-bold text-xs ring-2 ring-primary/20">
+                          {getInitials(member)}
+                        </div>
+                        <span className="text-sm font-medium text-on-surface">{member}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))
+            )}
           </div>
 
           <div className="mt-8 flex justify-end gap-4">
