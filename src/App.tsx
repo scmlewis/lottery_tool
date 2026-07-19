@@ -203,24 +203,9 @@ export default function App() {
         onClose={() => setShowSettings(false)}
         settings={settings}
         onSettingsChange={handleSettingsChange}
+        onResetPresets={handleResetPresets}
+        onClearHistory={handleClearHistory}
       />
-
-      <div className="fixed bottom-24 right-6 z-30">
-        <button
-          onClick={handleResetPresets}
-          className="w-full text-left py-2 px-3 hover:bg-surface-container-high hover:text-primary rounded text-on-surface-variant transition-colors flex items-center gap-2.5 cursor-pointer text-xs"
-        >
-          <span className="material-symbols-outlined text-base">restart_alt</span>
-          Reset Factory Presets
-        </button>
-        <button
-          onClick={handleClearHistory}
-          className="w-full text-left py-2 px-3 hover:bg-surface-container-high hover:text-error rounded text-on-surface-variant transition-colors flex items-center gap-2.5 cursor-pointer text-xs"
-        >
-          <span className="material-symbols-outlined text-base">delete_sweep</span>
-          Clear Session Logs
-        </button>
-      </div>
     </div>
   );
 }

@@ -12,6 +12,8 @@ interface SettingsDrawerProps {
   onClose: () => void;
   settings: Settings;
   onSettingsChange: (settings: Settings) => void;
+  onResetPresets: () => void;
+  onClearHistory: () => void;
 }
 
 export default function SettingsDrawer({
@@ -19,6 +21,8 @@ export default function SettingsDrawer({
   onClose,
   settings,
   onSettingsChange,
+  onResetPresets,
+  onClearHistory,
 }: SettingsDrawerProps) {
   const handleToggle = (key: keyof Settings) => {
     onSettingsChange({
@@ -138,6 +142,30 @@ export default function SettingsDrawer({
                   />
                   <p className="text-xs text-on-surface-variant/60">Seconds between draws (0 = off)</p>
                 </div>
+              </section>
+
+              <section className="space-y-4 pt-4 border-t border-outline-variant/10">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-primary">Data</h3>
+                <button
+                  onClick={() => {
+                    onResetPresets();
+                    onClose();
+                  }}
+                  className="w-full text-left py-3 px-4 hover:bg-surface-container-lowest rounded-lg text-on-surface-variant transition-colors flex items-center gap-3 cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-base">restart_alt</span>
+                  Reset Factory Presets
+                </button>
+                <button
+                  onClick={() => {
+                    onClearHistory();
+                    onClose();
+                  }}
+                  className="w-full text-left py-3 px-4 hover:bg-surface-container-lowest rounded-lg text-error transition-colors flex items-center gap-3 cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-base">delete_sweep</span>
+                  Clear Session Logs
+                </button>
               </section>
             </div>
           </motion.aside>
