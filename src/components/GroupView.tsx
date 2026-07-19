@@ -3,19 +3,6 @@ import { motion } from 'motion/react';
 import { GroupAssignment, ActivityEntry } from '../types';
 import { createActivity } from '../utils';
 
-const GROUP_NAME_TEMPLATES = [
-  'Alpha Vanguard',
-  'Onyx Collective',
-  'Elysian Concord',
-  'Obsidian Syndicate',
-  'Valkyrie Assembly',
-  'Midnight Order',
-  'Gilded Assembly',
-  'Sovereign Circle',
-  'Zephyr Division',
-  'Aether Cadre',
-];
-
 const ACCENT_COLORS = [
   'border-primary',
   'border-secondary-container',
@@ -41,6 +28,7 @@ interface GroupViewProps {
 
 export default function GroupView({ onAddActivity }: GroupViewProps) {
   const [registryText, setRegistryText] = useState(PRESET_MEMBERS);
+  const [groupNamesText, setGroupNamesText] = useState('');
   const [strategy, setStrategy] = useState<'count' | 'size'>('count');
   const [strategyVal, setStrategyVal] = useState(4);
   const [groups, setGroups] = useState<GroupAssignment[]>([
@@ -82,9 +70,14 @@ export default function GroupView({ onAddActivity }: GroupViewProps) {
       calculatedGroupCount = Math.ceil(shuffled.length / Math.max(1, strategyVal));
     }
 
+    const customNames = groupNamesText
+      .split(/[\n,]+/)
+      .map((name) => name.trim())
+      .filter((name) => name.length > 0);
+
     const newGroups: GroupAssignment[] = Array.from({ length: calculatedGroupCount }, (_, i) => ({
       id: `group-assign-${i}-${Date.now()}`,
-      name: GROUP_NAME_TEMPLATES[i % GROUP_NAME_TEMPLATES.length] || `Group ${i + 1}`,
+      name: customNames[i] || `Group ${i + 1}`,
       members: [],
       color: ACCENT_COLORS[i % ACCENT_COLORS.length],
     }));
@@ -159,6 +152,17 @@ export default function GroupView({ onAddActivity }: GroupViewProps) {
               className="w-full bg-surface-container-lowest border border-outline-variant/10 rounded-md p-4 text-on-surface focus:ring-1 focus:ring-primary/40 focus:border-primary/40 min-h-[170px] placeholder:text-on-surface-variant/40 resize-none outline-none text-sm transition-all custom-scrollbar"
               placeholder="Enter names separated by commas or lines..."
             ></textarea>
+
+            <div className="mt-6">
+              <label className="block text-xs font-bold tracking-widest text-primary uppercase mb-3 font-label">Group Names (optional)</label>
+              <textarea
+                value={groupNamesText}
+                onChange={(e) => setGroupNamesText(e.target.value)}
+                className="w-full bg-surface-container-lowest border border-outline-variant/10 rounded-md p-4 text-on-surface focus:ring-1 focus:ring-primary/40 focus:border-primary/40 min-h-[100px] placeholder:text-on-surface-variant/40 resize-none outline-none text-sm transition-all custom-scrollbar"
+                placeholder="Team Alpha&#10;Team Beta&#10;Team Gamma&#10;... (one per line, or leave empty for auto-naming)"
+              ></textarea>
+              <p className="text-xs text-on-surface-variant/50 mt-2">Leave empty to auto-assign names (Group 1, 2, 3...)</p>
+            </div>
 
             <div className="mt-8 space-y-6">
               <div className="flex items-center justify-between">
