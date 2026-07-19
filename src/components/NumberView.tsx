@@ -120,7 +120,15 @@ export default function NumberView({ batches, onAddBatch, onAddActivity }: Numbe
                   <label className="text-xs font-bold uppercase tracking-wider text-on-surface-variant/70">Min Value</label>
                   <input
                     value={minVal}
-                    onChange={(e) => setMinVal(parseInt(e.target.value, 10) || 1)}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === '' || val === '-') {
+                        setMinVal(val === '-' ? -0 : 0);
+                      } else {
+                        const parsed = parseInt(val, 10);
+                        if (!isNaN(parsed)) setMinVal(parsed);
+                      }
+                    }}
                     className="w-full bg-surface-container-lowest border border-outline-variant/10 rounded-md p-4 text-primary font-mono focus:ring-1 focus:ring-primary/40 focus:border-primary/40 outline-none text-sm transition-all"
                     type="number"
                   />
@@ -129,7 +137,15 @@ export default function NumberView({ batches, onAddBatch, onAddActivity }: Numbe
                   <label className="text-xs font-bold uppercase tracking-wider text-on-surface-variant/70">Max Value</label>
                   <input
                     value={maxVal}
-                    onChange={(e) => setMaxVal(parseInt(e.target.value, 10) || 99)}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === '' || val === '-') {
+                        setMaxVal(val === '-' ? -0 : 0);
+                      } else {
+                        const parsed = parseInt(val, 10);
+                        if (!isNaN(parsed)) setMaxVal(parsed);
+                      }
+                    }}
                     className="w-full bg-surface-container-lowest border border-outline-variant/10 rounded-md p-4 text-primary font-mono focus:ring-1 focus:ring-primary/40 focus:border-primary/40 outline-none text-sm transition-all"
                     type="number"
                   />
