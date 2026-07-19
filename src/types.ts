@@ -45,6 +45,13 @@ export interface DisplaySettings {
   autoAdvanceSeconds: number;
 }
 
+export interface Settings {
+  removeWinnerAfterDraw: boolean;
+  soundEnabled: boolean;
+  confettiEnabled: boolean;
+  autoAdvanceSeconds: number;
+}
+
 export interface AppState {
   displayMode: boolean;
   displaySettings: DisplaySettings;

@@ -1,18 +1,20 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { AppMode, Contestant, WinnerHistoryEntry, NumberBatchEntry, ActivityEntry } from './types';
+import { AnimatePresence } from 'motion/react';
+import { AppMode, Contestant, WinnerHistoryEntry, NumberBatchEntry, ActivityEntry, Settings } from './types';
 import { useDisplayMode } from './hooks/useDisplayMode';
-import { safeParseJSON } from './state';
+import { safeParseJSON, loadSettings, saveSettings } from './state';
 import DashboardView from './components/DashboardView';
 import WheelView from './components/WheelView';
 import NumberView from './components/NumberView';
 import GroupView from './components/GroupView';
+import SettingsDrawer from './components/SettingsDrawer';
 
 const STORAGE_KEY_WINNER_HISTORY = 'lucky_draw_winner_history';
 
 export default function App() {
   const [mode, setMode] = useState<AppMode>('dashboard');
   const [showSettings, setShowSettings] = useState(false);
+  const [settings, setSettings] = useState<Settings>(() => loadSettings());
   const [contestants, setContestants] = useState<Contestant[]>([
     { id: '1', name: 'Apple' },
     { id: '2', name: 'Banana' },
@@ -32,6 +34,11 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY_WINNER_HISTORY, JSON.stringify(winnerHistory));
   }, [winnerHistory]);
+
+  const handleSettingsChange = (newSettings: Settings) => {
+    setSettings(newSettings);
+    saveSettings(newSettings);
+  };
 
   const handleAddContestant = (name: string) => {
     const newContestant: Contestant = {
@@ -147,6 +154,7 @@ export default function App() {
               winnerHistory={winnerHistory}
               onAddWinner={handleAddWinner}
               onAddActivity={handleAddActivity}
+              settings={settings}
             />
           )}
           {mode === 'number' && (
@@ -190,41 +198,29 @@ export default function App() {
         ))}
       </nav>
 
-      <AnimatePresence>
-        {showSettings && (
-          <>
-            <div
-              className="fixed inset-0 z-40"
-              onClick={() => setShowSettings(false)}
-            />
-            <motion.div
-              initial={{ opacity: 0, y: 10, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 10, scale: 0.95 }}
-              transition={{ duration: 0.15 }}
-              className="absolute right-6 top-20 w-64 bg-surface-container rounded-lg border border-white/5 shadow-2xl z-50 p-4 space-y-3 text-sm"
-            >
-              <p className="text-xs font-bold uppercase tracking-widest text-primary border-b border-outline-variant/10 pb-2">
-                Settings
-              </p>
-              <button
-                onClick={handleResetPresets}
-                className="w-full text-left py-2 px-3 hover:bg-surface-container-high hover:text-primary rounded text-on-surface-variant transition-colors flex items-center gap-2.5 cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-base">restart_alt</span>
-                Reset Factory Presets
-              </button>
-              <button
-                onClick={handleClearHistory}
-                className="w-full text-left py-2 px-3 hover:bg-surface-container-high hover:text-error rounded text-on-surface-variant transition-colors flex items-center gap-2.5 cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-base">delete_sweep</span>
-                Clear Session Logs
-              </button>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      <SettingsDrawer
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        settings={settings}
+        onSettingsChange={handleSettingsChange}
+      />
+
+      <div className="fixed bottom-24 right-6 z-30">
+        <button
+          onClick={handleResetPresets}
+          className="w-full text-left py-2 px-3 hover:bg-surface-container-high hover:text-primary rounded text-on-surface-variant transition-colors flex items-center gap-2.5 cursor-pointer text-xs"
+        >
+          <span className="material-symbols-outlined text-base">restart_alt</span>
+          Reset Factory Presets
+        </button>
+        <button
+          onClick={handleClearHistory}
+          className="w-full text-left py-2 px-3 hover:bg-surface-container-high hover:text-error rounded text-on-surface-variant transition-colors flex items-center gap-2.5 cursor-pointer text-xs"
+        >
+          <span className="material-symbols-outlined text-base">delete_sweep</span>
+          Clear Session Logs
+        </button>
+      </div>
     </div>
   );
 }

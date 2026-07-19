@@ -1,10 +1,37 @@
-import { AppState, DisplaySettings } from './types';
+import { AppState, DisplaySettings, Settings } from './types';
 
 const initialDisplaySettings: DisplaySettings = {
   soundEnabled: true,
   confettiEnabled: true,
   autoAdvanceSeconds: 0,
 };
+
+const initialSettings: Settings = {
+  removeWinnerAfterDraw: false,
+  soundEnabled: true,
+  confettiEnabled: true,
+  autoAdvanceSeconds: 0,
+};
+
+function loadSettings(): Settings {
+  try {
+    const saved = localStorage.getItem('app_settings');
+    if (saved) {
+      return { ...initialSettings, ...JSON.parse(saved) };
+    }
+  } catch {
+    // ignore
+  }
+  return initialSettings;
+}
+
+function saveSettings(settings: Settings): void {
+  try {
+    localStorage.setItem('app_settings', JSON.stringify(settings));
+  } catch {
+    // ignore quota errors
+  }
+}
 
 export const state: AppState = {
   displayMode: false,
@@ -27,3 +54,5 @@ export function safeParseJSON<T>(json: string | null, fallback: T): T {
     return fallback;
   }
 }
+
+export { loadSettings, saveSettings };
