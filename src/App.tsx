@@ -25,15 +25,9 @@ export default function App() {
     const history = safeParseJSON<WinnerHistoryEntry[]>(localStorage.getItem(STORAGE_KEY_WINNER_HISTORY), []);
     return history.length > 0 ? history[0].name : '';
   });
-  const [lastWinnerCode, setLastWinnerCode] = useState(() => {
+  const [lastWinnerTimestamp, setLastWinnerTimestamp] = useState(() => {
     const history = safeParseJSON<WinnerHistoryEntry[]>(localStorage.getItem(STORAGE_KEY_WINNER_HISTORY), []);
-    if (history.length > 0) {
-      const name = history[0].name;
-      const codeSegment = Math.floor(100 + Math.random() * 900);
-      const suffix = name.substring(0, 2).toUpperCase();
-      return `GOLD-${codeSegment}-${suffix}`;
-    }
-    return '';
+    return history.length > 0 ? history[0].timestamp : null;
   });
 
   const { toggleDisplayMode } = useDisplayMode();
@@ -67,9 +61,7 @@ export default function App() {
     };
     setWinnerHistory((prev) => [newEntry, ...prev]);
     setLastWinnerName(name);
-    const codeSegment = Math.floor(100 + Math.random() * 900);
-    const suffix = name.substring(0, 2).toUpperCase();
-    setLastWinnerCode(`GOLD-${codeSegment}-${suffix}`);
+    setLastWinnerTimestamp(newEntry.timestamp);
   };
 
   const handleAddBatch = (batch: NumberBatchEntry) => {
@@ -80,6 +72,12 @@ export default function App() {
     setActivities((prev) => [act, ...prev].slice(0, 50));
   };
 
+  const handleClearActivities = () => {
+    if (confirm('Clear recent activity feed?')) {
+      setActivities([]);
+    }
+  };
+
   const handleResetPresets = () => {
     if (confirm('Are you sure you want to reset all data?')) {
       setContestants([]);
@@ -87,7 +85,7 @@ export default function App() {
       setNumberBatches([]);
       setActivities([]);
       setLastWinnerName('');
-      setLastWinnerCode('');
+      setLastWinnerTimestamp(null);
       setMode('dashboard');
       setShowSettings(false);
     }
@@ -98,6 +96,8 @@ export default function App() {
       setWinnerHistory([]);
       setNumberBatches([]);
       setActivities([]);
+      setLastWinnerName('');
+      setLastWinnerTimestamp(null);
       setShowSettings(false);
     }
   };
@@ -144,7 +144,8 @@ export default function App() {
               onNavigate={(dest) => setMode(dest)}
               activities={activities}
               lastWinnerName={lastWinnerName}
-              lastWinnerCode={lastWinnerCode}
+              lastWinnerTimestamp={lastWinnerTimestamp}
+              onClearActivities={handleClearActivities}
             />
           )}
           {mode === 'wheel' && (

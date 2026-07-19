@@ -167,6 +167,19 @@ export default function SettingsDrawer({
                   Clear Session Logs
                 </button>
               </section>
+
+              <section className="space-y-4 pt-4 border-t border-outline-variant/10">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-primary">Source</h3>
+                <a
+                  href="https://github.com/scmlewis/lottery_tool"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full text-left py-3 px-4 hover:bg-surface-container-lowest rounded-lg text-on-surface-variant transition-colors flex items-center gap-3 cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-base">code</span>
+                  View on GitHub — @scmlewis
+                </a>
+              </section>
             </div>
           </motion.aside>
         </>

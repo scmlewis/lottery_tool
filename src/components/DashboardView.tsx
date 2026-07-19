@@ -5,14 +5,16 @@ interface DashboardViewProps {
   onNavigate: (mode: AppMode) => void;
   activities: ActivityEntry[];
   lastWinnerName?: string;
-  lastWinnerCode?: string;
+  lastWinnerTimestamp?: number | null;
+  onClearActivities: () => void;
 }
 
 export default function DashboardView({
   onNavigate,
   activities,
   lastWinnerName,
-  lastWinnerCode,
+  lastWinnerTimestamp,
+  onClearActivities,
 }: DashboardViewProps) {
   return (
     <motion.div
@@ -27,13 +29,13 @@ export default function DashboardView({
         <div className="relative z-10 w-full md:w-2/3 space-y-6">
           <div className="space-y-2">
             <span className="text-primary font-label text-xs uppercase tracking-[0.2em] font-extrabold bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
-              The Premium Playroom
+              Fair • Private • Instant
             </span>
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-headline font-extrabold tracking-tight text-on-surface leading-none mt-2">
-              Welcome back, Architect.
+              Lucky Draw
             </h2>
             <p className="text-on-surface-variant text-base md:text-lg max-w-md leading-relaxed">
-              Your next winning configuration is a heartbeat away. Precision tools for the discerning player.
+              Pick winners from a spinning wheel, draw random numbers, or split people into balanced groups. Everything runs in your browser — no sign-up, no tracking.
             </p>
           </div>
           <button
@@ -81,10 +83,20 @@ export default function DashboardView({
 
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-8 space-y-6">
-          <h2 className="text-2xl font-headline font-bold text-on-surface flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary">history</span>
-            Recent Activity
-          </h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-headline font-bold text-on-surface flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary">history</span>
+              Recent Activity
+            </h2>
+            {activities.length > 0 && (
+              <button
+                onClick={onClearActivities}
+                className="px-4 py-2 rounded-full border border-outline-variant/30 text-xs font-bold uppercase tracking-widest hover:bg-surface-container hover:text-on-surface transition-colors cursor-pointer"
+              >
+                Clear
+              </button>
+            )}
+          </div>
           <div className="bg-surface-container-low rounded-lg overflow-hidden border border-white/5 divide-y divide-outline-variant/10 shadow-lg">
             {activities.length === 0 ? (
               <div className="p-8 text-center text-on-surface-variant">
@@ -137,11 +149,11 @@ export default function DashboardView({
                 </div>
                 <div>
                   <h4 className="text-xl font-bold font-headline text-on-surface">{lastWinnerName}</h4>
-                  <p className="text-primary font-label text-xs tracking-widest uppercase mt-1">Tier One Member</p>
-                </div>
-                <div className="w-full bg-surface-container-highest/40 rounded-lg p-4 mt-4 border border-white/5">
-                  <div className="text-[10px] uppercase tracking-tighter text-on-surface-variant mb-1">Winning Code</div>
-                  <div className="text-2xl font-mono font-black tracking-widest text-primary">{lastWinnerCode}</div>
+                  {lastWinnerTimestamp && (
+                    <p className="text-on-surface-variant text-xs mt-1">
+                      {new Date(lastWinnerTimestamp).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
+                    </p>
+                  )}
                 </div>
               </div>
             ) : (
