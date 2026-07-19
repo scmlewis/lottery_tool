@@ -26,8 +26,20 @@ export default function App() {
   });
   const [numberBatches, setNumberBatches] = useState<NumberBatchEntry[]>([]);
   const [activities, setActivities] = useState<ActivityEntry[]>([]);
-  const [lastWinnerName, setLastWinnerName] = useState('Sarah Jenkins');
-  const [lastWinnerCode, setLastWinnerCode] = useState('GOLD-774-LX');
+  const [lastWinnerName, setLastWinnerName] = useState(() => {
+    const history = safeParseJSON<WinnerHistoryEntry[]>(localStorage.getItem(STORAGE_KEY_WINNER_HISTORY), []);
+    return history.length > 0 ? history[0].name : '';
+  });
+  const [lastWinnerCode, setLastWinnerCode] = useState(() => {
+    const history = safeParseJSON<WinnerHistoryEntry[]>(localStorage.getItem(STORAGE_KEY_WINNER_HISTORY), []);
+    if (history.length > 0) {
+      const name = history[0].name;
+      const codeSegment = Math.floor(100 + Math.random() * 900);
+      const suffix = name.substring(0, 2).toUpperCase();
+      return `GOLD-${codeSegment}-${suffix}`;
+    }
+    return '';
+  });
 
   const { toggleDisplayMode } = useDisplayMode();
 
@@ -84,8 +96,8 @@ export default function App() {
       setWinnerHistory([]);
       setNumberBatches([]);
       setActivities([]);
-      setLastWinnerName('Sarah Jenkins');
-      setLastWinnerCode('GOLD-774-LX');
+      setLastWinnerName('');
+      setLastWinnerCode('');
       setMode('dashboard');
       setShowSettings(false);
     }

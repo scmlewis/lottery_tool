@@ -11,8 +11,8 @@ interface DashboardViewProps {
 export default function DashboardView({
   onNavigate,
   activities,
-  lastWinnerName = 'Sarah Jenkins',
-  lastWinnerCode = 'GOLD-774-LX',
+  lastWinnerName,
+  lastWinnerCode,
 }: DashboardViewProps) {
   return (
     <motion.div
@@ -127,22 +127,34 @@ export default function DashboardView({
             <div className="absolute top-0 right-0 p-4">
               <span className="material-symbols-outlined text-primary opacity-30" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
             </div>
-            <div className="flex flex-col items-center text-center space-y-4">
-              <div className="relative">
-                <div className="absolute -inset-1.5 bg-gradient-to-r from-primary to-secondary rounded-full blur-md opacity-40 animate-pulse"></div>
-                <div className="w-24 h-24 rounded-full bg-surface-container-high border-2 border-primary flex items-center justify-center relative z-10">
-                  <span className="material-symbols-outlined text-primary text-4xl">person</span>
+            {lastWinnerName ? (
+              <div className="flex flex-col items-center text-center space-y-4">
+                <div className="relative">
+                  <div className="absolute -inset-1.5 bg-gradient-to-r from-primary to-secondary rounded-full blur-md opacity-40 animate-pulse"></div>
+                  <div className="w-24 h-24 rounded-full bg-surface-container-high border-2 border-primary flex items-center justify-center relative z-10">
+                    <span className="material-symbols-outlined text-primary text-4xl">person</span>
+                  </div>
+                </div>
+                <div>
+                  <h4 className="text-xl font-bold font-headline text-on-surface">{lastWinnerName}</h4>
+                  <p className="text-primary font-label text-xs tracking-widest uppercase mt-1">Tier One Member</p>
+                </div>
+                <div className="w-full bg-surface-container-highest/40 rounded-lg p-4 mt-4 border border-white/5">
+                  <div className="text-[10px] uppercase tracking-tighter text-on-surface-variant mb-1">Winning Code</div>
+                  <div className="text-2xl font-mono font-black tracking-widest text-primary">{lastWinnerCode}</div>
                 </div>
               </div>
-              <div>
-                <h4 className="text-xl font-bold font-headline text-on-surface">{lastWinnerName}</h4>
-                <p className="text-primary font-label text-xs tracking-widest uppercase mt-1">Tier One Member</p>
+            ) : (
+              <div className="flex flex-col items-center text-center space-y-4 py-4">
+                <div className="w-24 h-24 rounded-full bg-surface-container-high border-2 border-outline-variant/20 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-on-surface-variant/40 text-4xl">person_off</span>
+                </div>
+                <div>
+                  <h4 className="text-lg font-bold font-headline text-on-surface-variant/60">No winners yet</h4>
+                  <p className="text-on-surface-variant/40 text-sm mt-1">Spin the wheel to pick a winner</p>
+                </div>
               </div>
-              <div className="w-full bg-surface-container-highest/40 rounded-lg p-4 mt-4 border border-white/5">
-                <div className="text-[10px] uppercase tracking-tighter text-on-surface-variant mb-1">Winning Code</div>
-                <div className="text-2xl font-mono font-black tracking-widest text-primary">{lastWinnerCode}</div>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </section>
