@@ -1,11 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { AppMode, Contestant, WinnerHistoryEntry, NumberBatchEntry, ActivityEntry } from './types';
 import { useDisplayMode } from './hooks/useDisplayMode';
+import { safeParseJSON } from './state';
 import DashboardView from './components/DashboardView';
 import WheelView from './components/WheelView';
 import NumberView from './components/NumberView';
 import GroupView from './components/GroupView';
+
+const STORAGE_KEY_WINNER_HISTORY = 'lucky_draw_winner_history';
 
 export default function App() {
   const [mode, setMode] = useState<AppMode>('dashboard');
@@ -16,13 +19,19 @@ export default function App() {
     { id: '3', name: 'Cherry' },
     { id: '4', name: 'Date' },
   ]);
-  const [winnerHistory, setWinnerHistory] = useState<WinnerHistoryEntry[]>([]);
+  const [winnerHistory, setWinnerHistory] = useState<WinnerHistoryEntry[]>(() => {
+    return safeParseJSON(localStorage.getItem(STORAGE_KEY_WINNER_HISTORY), []);
+  });
   const [numberBatches, setNumberBatches] = useState<NumberBatchEntry[]>([]);
   const [activities, setActivities] = useState<ActivityEntry[]>([]);
   const [lastWinnerName, setLastWinnerName] = useState('Sarah Jenkins');
   const [lastWinnerCode, setLastWinnerCode] = useState('GOLD-774-LX');
 
   const { toggleDisplayMode } = useDisplayMode();
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY_WINNER_HISTORY, JSON.stringify(winnerHistory));
+  }, [winnerHistory]);
 
   const handleAddContestant = (name: string) => {
     const newContestant: Contestant = {

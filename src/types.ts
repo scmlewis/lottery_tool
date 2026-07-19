@@ -28,11 +28,13 @@ export interface NumberBatchEntry {
   max: number;
 }
 
+export type ActivityType = 'wheel' | 'number' | 'group';
+
 export interface ActivityEntry {
   id: string;
   title: string;
   subtitle: string;
-  type: 'wheel' | 'number' | 'group';
+  type: ActivityType;
   code: string;
   timestamp: number;
 }

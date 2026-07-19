@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { motion } from 'motion/react';
 import { NumberBatchEntry, ActivityEntry } from '../types';
 import { useSoundEffects } from '../hooks/useSoundEffects';
+import { createActivity } from '../utils';
 
 interface NumberViewProps {
   batches: NumberBatchEntry[];
@@ -15,6 +16,8 @@ export default function NumberView({ batches, onAddBatch, onAddActivity }: Numbe
   const [quantity, setQuantity] = useState(6);
   const [latestDraw, setLatestDraw] = useState<number[]>([24, 7, 89, 12, 45, 33]);
   const [isDrawing, setIsDrawing] = useState(false);
+  const [excludeDrawn, setExcludeDrawn] = useState(false);
+  const [drawnNumbers, setDrawnNumbers] = useState<Set<number>>(new Set());
 
   const { playReveal } = useSoundEffects();
 
@@ -40,10 +43,15 @@ export default function NumberView({ batches, onAddBatch, onAddActivity }: Numbe
     const poolSize = rangeEnd - rangeStart + 1;
     const drawSize = Math.min(poolSize, quantity);
 
-    const available = Array.from({ length: poolSize }, (_, i) => rangeStart + i);
+    let available = Array.from({ length: poolSize }, (_, i) => rangeStart + i);
+    
+    if (excludeDrawn) {
+      available = available.filter((num) => !drawnNumbers.has(num));
+    }
+
     const drawn: number[] = [];
 
-    for (let i = 0; i < drawSize; i++) {
+    for (let i = 0; i < Math.min(drawSize, available.length); i++) {
       const idx = Math.floor(Math.random() * available.length);
       drawn.push(available[idx]);
       available.splice(idx, 1);
@@ -56,15 +64,15 @@ export default function NumberView({ batches, onAddBatch, onAddActivity }: Numbe
       setIsDrawing(false);
       playReveal();
 
-      const randomCode = '#' + Math.floor(1000 + Math.random() * 9000);
-      onAddActivity({
-        id: 'act-' + Date.now(),
-        title: `Drew numbers: [${drawn.join(', ')}]`,
-        subtitle: 'Number Mode',
-        type: 'number',
-        code: randomCode,
-        timestamp: Date.now(),
-      });
+      if (excludeDrawn) {
+        setDrawnNumbers((prev) => {
+          const newSet = new Set(prev);
+          drawn.forEach((num) => newSet.add(num));
+          return newSet;
+        });
+      }
+
+      onAddActivity(createActivity('number', `Drew numbers: [${drawn.join(', ')}]`, 'Number Mode'));
     }, 800);
   };
 
@@ -80,21 +88,18 @@ export default function NumberView({ batches, onAddBatch, onAddActivity }: Numbe
     };
     onAddBatch(newBatch);
 
-    const randomCode = '#' + Math.floor(1000 + Math.random() * 9000);
-    onAddActivity({
-      id: 'act-' + Date.now(),
-      title: `Saved Batch #${nextBatchNum}`,
-      subtitle: 'Number Mode',
-      type: 'number',
-      code: randomCode,
-      timestamp: Date.now(),
-    });
+    onAddActivity(createActivity('number', `Saved Batch #${nextBatchNum}`, 'Number Mode'));
   };
 
   const handleCopyAll = () => {
     const text = latestDraw.join(', ');
     navigator.clipboard.writeText(text);
     alert('Numbers copied to clipboard: ' + text);
+  };
+
+  const handleClearHistory = () => {
+    setDrawnNumbers(new Set());
+    setLatestDraw([]);
   };
 
   return (
@@ -140,11 +145,29 @@ export default function NumberView({ batches, onAddBatch, onAddActivity }: Numbe
                   value={quantity}
                   onChange={(e) => setQuantity(parseInt(e.target.value, 10) || 1)}
                   className="w-full h-1 bg-surface-container-lowest rounded-full appearance-none cursor-pointer accent-primary focus:outline-none"
-                  max="15"
+                  max="20"
                   min="1"
                   type="range"
                 />
               </div>
+
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-on-surface">Exclude Drawn Numbers</label>
+                <button
+                  type="button"
+                  onClick={() => setExcludeDrawn(!excludeDrawn)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
+                    excludeDrawn ? 'bg-primary' : 'bg-surface-container-highest'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-on-primary transition-transform ${
+                      excludeDrawn ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+              <p className="text-xs text-on-surface-variant/60">Prevent previously drawn numbers from being selected again</p>
 
               <button
                 onClick={handleDrawNumbers}
@@ -208,7 +231,12 @@ export default function NumberView({ batches, onAddBatch, onAddActivity }: Numbe
           <div className="space-y-6">
             <div className="flex justify-between items-end">
               <h2 className="text-2xl font-bold text-on-surface font-headline">Batch History</h2>
-              <span className="text-xs font-semibold uppercase tracking-widest text-on-surface-variant/50">Last 24 Hours</span>
+              <button
+                onClick={handleClearHistory}
+                className="px-4 py-2 rounded-full border border-outline-variant/30 text-xs font-bold uppercase tracking-widest hover:bg-surface-container hover:text-on-surface transition-colors cursor-pointer"
+              >
+                Clear History
+              </button>
             </div>
             <div className="space-y-4 max-h-[360px] overflow-y-auto pr-1 custom-scrollbar">
               {batches.length === 0 ? (

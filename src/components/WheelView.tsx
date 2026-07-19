@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Contestant, WinnerHistoryEntry, ActivityEntry } from '../types';
 import { useSoundEffects } from '../hooks/useSoundEffects';
 import { useConfetti } from '../hooks/useConfetti';
+import { createActivity } from '../utils';
 
 interface WheelViewProps {
   contestants: Contestant[];
@@ -29,9 +30,17 @@ export default function WheelView({
     const saved = localStorage.getItem('total_spins_count');
     return saved ? parseInt(saved, 10) : 1284;
   });
+  const [removeWinnerAfterDraw, setRemoveWinnerAfterDraw] = useState(() => {
+    const saved = localStorage.getItem('remove_winner_after_draw');
+    return saved === 'true';
+  });
 
   const { startSpinTick, stopSpinTick, playWinnerFanfare } = useSoundEffects();
   const { launchConfetti, clearConfetti } = useConfetti();
+
+  useEffect(() => {
+    localStorage.setItem('remove_winner_after_draw', removeWinnerAfterDraw.toString());
+  }, [removeWinnerAfterDraw]);
 
   useEffect(() => {
     localStorage.setItem('total_spins_count', totalSpinsCount.toString());
@@ -70,15 +79,14 @@ export default function WheelView({
       launchConfetti();
       setTotalSpinsCount((prev) => prev + 1);
 
-      const randomCode = '#' + Math.floor(1000 + Math.random() * 9000);
-      onAddActivity({
-        id: 'act-' + Date.now(),
-        title: `Spun "${winnerName}"`,
-        subtitle: 'Wheel Mode',
-        type: 'wheel',
-        code: randomCode,
-        timestamp: Date.now(),
-      });
+      if (removeWinnerAfterDraw) {
+        const winnerContestant = contestants.find((c) => c.name === winnerName);
+        if (winnerContestant) {
+          onDeleteContestant(winnerContestant.id);
+        }
+      }
+
+      onAddActivity(createActivity('wheel', `Spun "${winnerName}"`, 'Wheel Mode'));
     }, 4000);
   };
 
@@ -130,6 +138,24 @@ export default function WheelView({
               )}
             </div>
           </div>
+
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-medium text-on-surface">Remove Winner After Draw</label>
+            <button
+              type="button"
+              onClick={() => setRemoveWinnerAfterDraw(!removeWinnerAfterDraw)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
+                removeWinnerAfterDraw ? 'bg-primary' : 'bg-surface-container-highest'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-on-primary transition-transform ${
+                  removeWinnerAfterDraw ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
+          <p className="text-xs text-on-surface-variant/60">Winner is removed from the wheel after being selected</p>
 
           <form onSubmit={handleAddItem} className="pt-2 border-t border-outline-variant/10">
             <div className="relative">

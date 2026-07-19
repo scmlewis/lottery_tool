@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
 import { GroupAssignment, ActivityEntry } from '../types';
+import { createActivity } from '../utils';
 
 const GROUP_NAME_TEMPLATES = [
   'Alpha Vanguard',
@@ -96,15 +97,7 @@ export default function GroupView({ onAddActivity }: GroupViewProps) {
     const filteredGroups = newGroups.filter((g) => g.members.length > 0);
     setGroups(filteredGroups);
 
-    const randomCode = '#' + Math.floor(1000 + Math.random() * 9000);
-    onAddActivity({
-      id: 'act-' + Date.now(),
-      title: `Organized ${filteredGroups.length} groups`,
-      subtitle: 'Group Mode',
-      type: 'group',
-      code: randomCode,
-      timestamp: Date.now(),
-    });
+    onAddActivity(createActivity('group', `Organized ${filteredGroups.length} groups`, 'Group Mode'));
   };
 
   const handleCopyLists = () => {
